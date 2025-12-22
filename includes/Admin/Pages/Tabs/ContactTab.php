@@ -56,7 +56,9 @@ class ContactTab
                         </label>
                         <input type="text" name="cv_options[contact][street]" value="<?= esc_attr($data['street'] ?? '') ?>"
                             placeholder="Ex: 123 Rue de la République"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            pattern="[a-zA-ZÀ-ÿ0-9\s\-_']+"
+                            title="Seuls les lettres, chiffres, espaces, tirets, underscores et apostrophes sont autorisés"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-text-field-street">
                     </div>
 
                     <div class="md:col-span-2">
@@ -80,7 +82,9 @@ class ContactTab
                             <label class="block text-sm font-medium text-gray-700 mb-2">Ville</label>
                             <input type="text" name="cv_options[contact][city]" value="<?= esc_attr($data['city'] ?? '') ?>"
                                 placeholder="Paris"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                pattern="[a-zA-ZÀ-ÿ\s\-_']+"
+                                title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-text-field">
                         </div>
                     </div>
 
@@ -248,6 +252,44 @@ class ContactTab
                     }
                 });
 
+                // Validation en temps réel pour les champs texte (ville)
+                $('.cv-text-field').on('input', function() {
+                    let value = $(this).val();
+                    // Autoriser uniquement lettres, espaces, tirets, underscores, apostrophes
+                    let filtered = value.replace(/[^a-zA-ZÀ-ÿ\s\-_']/g, '');
+
+                    if (value !== filtered) {
+                        $(this).val(filtered);
+                    }
+
+                    // Validation visuelle
+                    const pattern = /^[a-zA-ZÀ-ÿ\s\-_']+$/;
+                    if (filtered === '' || pattern.test(filtered)) {
+                        $(this).removeClass('border-red-500').addClass('border-gray-300');
+                    } else if (filtered.length > 0) {
+                        $(this).removeClass('border-gray-300').addClass('border-red-500');
+                    }
+                });
+
+                // Validation en temps réel pour la rue (avec nombres)
+                $('.cv-text-field-street').on('input', function() {
+                    let value = $(this).val();
+                    // Autoriser lettres, chiffres, espaces, tirets, underscores, apostrophes
+                    let filtered = value.replace(/[^a-zA-ZÀ-ÿ0-9\s\-_']/g, '');
+
+                    if (value !== filtered) {
+                        $(this).val(filtered);
+                    }
+
+                    // Validation visuelle
+                    const pattern = /^[a-zA-ZÀ-ÿ0-9\s\-_']+$/;
+                    if (filtered === '' || pattern.test(filtered)) {
+                        $(this).removeClass('border-red-500').addClass('border-gray-300');
+                    } else if (filtered.length > 0) {
+                        $(this).removeClass('border-gray-300').addClass('border-red-500');
+                    }
+                });
+
                 // Validation en temps réel pour les URLs
                 $(document).on('input', 'input[type="url"]', function() {
                     const value = $(this).val();
@@ -285,6 +327,32 @@ class ContactTab
                         errorMessages.push('Code postal : doit contenir 5 chiffres');
                         $('input[name="cv_options[contact][postal_code]"]').addClass('border-red-500');
                     }
+
+                    // Vérifier les champs texte (nom, prénom, titre, ville)
+                    $('.cv-text-field').each(function() {
+                        const value = $(this).val().trim();
+                        const pattern = /^[a-zA-ZÀ-ÿ\s\-_']+$/;
+
+                        if (value !== '' && !pattern.test(value)) {
+                            hasErrors = true;
+                            const label = $(this).closest('div').find('label').text().trim();
+                            errorMessages.push(label + ' : caractères invalides (seuls lettres, espaces, tirets, underscores et apostrophes sont autorisés)');
+                            $(this).addClass('border-red-500');
+                        }
+                    });
+
+                    // Vérifier le champ rue (avec nombres)
+                    $('.cv-text-field-street').each(function() {
+                        const value = $(this).val().trim();
+                        const pattern = /^[a-zA-ZÀ-ÿ0-9\s\-_']+$/;
+
+                        if (value !== '' && !pattern.test(value)) {
+                            hasErrors = true;
+                            const label = $(this).closest('div').find('label').text().trim();
+                            errorMessages.push(label + ' : caractères invalides (seuls lettres, chiffres, espaces, tirets, underscores et apostrophes sont autorisés)');
+                            $(this).addClass('border-red-500');
+                        }
+                    });
 
                     // Vérifier l'email
                     const email = $('input[type="email"]').val().trim();

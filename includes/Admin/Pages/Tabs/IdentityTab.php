@@ -52,7 +52,9 @@ class IdentityTab
                 <label class="block text-sm font-medium text-gray-700 mb-2">Poste</label>
                 <input type="text" name="cv_options[identity][job_title]"
                     value="<?= esc_attr($data['job_title'] ?? '') ?>" placeholder="Ex: Développeur Full Stack"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    pattern="[a-zA-ZÀ-ÿ\s\-_']+"
+                    title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-text-field">
             </div>
 
             <div>
@@ -66,14 +68,18 @@ class IdentityTab
                 <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
                 <input type="text" name="cv_options[identity][first_name]"
                     value="<?= esc_attr($data['first_name'] ?? '') ?>" placeholder="Votre prénom"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    pattern="[a-zA-ZÀ-ÿ\s\-_']+"
+                    title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-text-field">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
                 <input type="text" name="cv_options[identity][last_name]"
                     value="<?= esc_attr($data['last_name'] ?? '') ?>" placeholder="Votre nom"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    pattern="[a-zA-ZÀ-ÿ\s\-_']+"
+                    title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-text-field">
             </div>
         </div>
     </div>
@@ -279,6 +285,25 @@ jQuery(document).ready(function($) {
                     `);
         preview.removeClass('p-2 bg-gray-50 rounded-lg border border-gray-200');
         $(this).addClass('hidden');
+    });
+
+    // Validation en temps réel pour les champs texte (titre, nom, prénom)
+    $('.cv-text-field').on('input', function() {
+        let value = $(this).val();
+        // Autoriser uniquement lettres, espaces, tirets, underscores, apostrophes
+        let filtered = value.replace(/[^a-zA-ZÀ-ÿ\s\-_']/g, '');
+
+        if (value !== filtered) {
+            $(this).val(filtered);
+        }
+
+        // Validation visuelle
+        const pattern = /^[a-zA-ZÀ-ÿ\s\-_']+$/;
+        if (filtered === '' || pattern.test(filtered)) {
+            $(this).removeClass('border-red-500').addClass('border-gray-300');
+        } else if (filtered.length > 0) {
+            $(this).removeClass('border-gray-300').addClass('border-red-500');
+        }
     });
 
 });

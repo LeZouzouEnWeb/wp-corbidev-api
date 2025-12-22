@@ -111,7 +111,9 @@ class AutresInformationsTab
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Titre du module</label>
                                 <input type="text"
                                     name="cv_options[autres_informations][modules][${index}][title]"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    pattern="[a-zA-ZÀ-ÿ0-9\\s\\-_']+"
+                                    title="Seuls les lettres, chiffres, espaces, tirets, underscores et apostrophes sont autorisés"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-autres-title-field"
                                     placeholder="Ex: Loisirs, Références, Projets personnels...">
                             </div>
 
@@ -128,6 +130,8 @@ class AutresInformationsTab
                     </div>
                 `);
 
+                    // Attacher la validation au nouveau champ
+                    attachAutresTitleValidation();
                     index++;
                 });
 
@@ -142,6 +146,35 @@ class AutresInformationsTab
                         }
                     }
                 });
+
+                function attachAutresTitleValidation() {
+                    document.querySelectorAll('.cv-autres-title-field').forEach(field => {
+                        field.removeEventListener('input', handleAutresTitleInput);
+                        field.addEventListener('input', handleAutresTitleInput);
+                    });
+                }
+
+                function handleAutresTitleInput(e) {
+                    let value = e.target.value;
+                    // Autoriser lettres, chiffres, espaces, tirets, underscores, apostrophes
+                    let filtered = value.replace(/[^a-zA-ZÀ-ÿ0-9\s\-_']/g, '');
+
+                    if (value !== filtered) {
+                        e.target.value = filtered;
+                    }
+
+                    const pattern = /^[a-zA-ZÀ-ÿ0-9\s\-_']+$/;
+                    if (filtered === '' || pattern.test(filtered)) {
+                        e.target.classList.remove('border-red-500');
+                        e.target.classList.add('border-gray-300');
+                    } else if (filtered.length > 0) {
+                        e.target.classList.remove('border-gray-300');
+                        e.target.classList.add('border-red-500');
+                    }
+                }
+
+                // Attacher la validation initiale
+                attachAutresTitleValidation();
             })();
         </script>
     <?php
@@ -175,7 +208,9 @@ class AutresInformationsTab
                     <input type="text"
                         name="cv_options[autres_informations][modules][<?= $index ?>][title]"
                         value="<?= esc_attr($module['title'] ?? '') ?>"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        pattern="[a-zA-ZÀ-ÿ0-9\s\-_']+"
+                        title="Seuls les lettres, chiffres, espaces, tirets, underscores et apostrophes sont autorisés"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-autres-title-field"
                         placeholder="Ex: Loisirs, Références, Projets personnels...">
                 </div>
 

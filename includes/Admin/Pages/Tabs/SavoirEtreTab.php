@@ -45,7 +45,9 @@ class SavoirEtreTab
                     <div class="savoir-etre-item flex gap-2">
                         <input type="text" name="cv_options[savoir_etre][]" value=""
                             placeholder="Ex: Travail d'équipe, Autonomie, Créativité..."
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                            pattern="[a-zA-ZÀ-ÿ\s\-_'‘’]+"
+                            title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-savoir-etre-field" />
                         <button type="button" class="remove px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -57,7 +59,9 @@ class SavoirEtreTab
                         <div class="savoir-etre-item flex gap-2">
                             <input type="text" name="cv_options[savoir_etre][]" value="<?= esc_attr($value) ?>"
                                 placeholder="Ex: Travail d'équipe, Autonomie, Créativité..."
-                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                                pattern="[a-zA-ZÀ-ÿ\s\-_'‘’]+"
+                                title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-savoir-etre-field" />
                             <button type="button" class="remove px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -108,7 +112,9 @@ class SavoirEtreTab
                     div.innerHTML = `
                     <input type="text" name="cv_options[savoir_etre][]" value=""
                            placeholder="Ex: Travail d'équipe, Autonomie, Créativité..."
-                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                           pattern="[a-zA-ZÀ-ÿ\\s\\-_'‘’]+"
+                           title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
+                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-savoir-etre-field" />
                     <button type="button" class="remove px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -117,6 +123,7 @@ class SavoirEtreTab
                 `;
                     list.appendChild(div);
                     syncTextarea();
+                    attachSavoirEtreValidation();
                 });
 
                 list.addEventListener('click', (e) => {
@@ -138,7 +145,9 @@ class SavoirEtreTab
                         div.innerHTML = `
                         <input type="text" name="cv_options[savoir_etre][]" value="${l.replace(/"/g,'&quot;')}"
                                placeholder="Ex: Travail d'équipe, Autonomie, Créativité..."
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                               pattern="[a-zA-ZÀ-ÿ\\s\\-_'‘’]+"
+                               title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-savoir-etre-field" />
                         <button type="button" class="remove px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -147,6 +156,7 @@ class SavoirEtreTab
                     `;
                         list.appendChild(div);
                     });
+                    attachSavoirEtreValidation();
                 });
 
                 const form = list.closest('form');
@@ -161,6 +171,34 @@ class SavoirEtreTab
                     const values = Array.from(inputs).map(i => i.value).filter(v => v.trim() !== '');
                     textarea.value = values.join("\n");
                 }
+
+                function attachSavoirEtreValidation() {
+                    document.querySelectorAll('.cv-savoir-etre-field').forEach(field => {
+                        field.removeEventListener('input', handleSavoirEtreInput);
+                        field.addEventListener('input', handleSavoirEtreInput);
+                    });
+                }
+
+                function handleSavoirEtreInput(e) {
+                    let value = e.target.value;
+                    let filtered = value.replace(/[^a-zA-ZÀ-ÿ\s\-_''\u2018\u2019]/g, '');
+
+                    if (value !== filtered) {
+                        e.target.value = filtered;
+                    }
+
+                    const pattern = /^[a-zA-ZÀ-ÿ\s\-_''\u2018\u2019]+$/;
+                    if (filtered === '' || pattern.test(filtered)) {
+                        e.target.classList.remove('border-red-500');
+                        e.target.classList.add('border-gray-300');
+                    } else if (filtered.length > 0) {
+                        e.target.classList.remove('border-gray-300');
+                        e.target.classList.add('border-red-500');
+                    }
+                }
+
+                // Attacher la validation initiale
+                attachSavoirEtreValidation();
             })();
         </script>
 <?php
