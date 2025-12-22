@@ -286,6 +286,15 @@ class ContactTab
                         $('input[name="cv_options[contact][postal_code]"]').addClass('border-red-500');
                     }
 
+                    // Vérifier l'email
+                    const email = $('input[type="email"]').val().trim();
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (email !== '' && !emailPattern.test(email)) {
+                        hasErrors = true;
+                        errorMessages.push('Email : adresse email invalide');
+                        $('input[type="email"]').addClass('border-red-500');
+                    }
+
                     // Vérifier les URLs
                     $('input[type="url"]').each(function() {
                         const value = $(this).val().trim();
@@ -302,27 +311,45 @@ class ContactTab
                     if (hasErrors) {
                         e.preventDefault();
 
-                        // Afficher les erreurs
-                        let errorHtml =
-                            '<div style="background: #fee; border: 1px solid #fcc; color: #c00; padding: 12px; border-radius: 8px; margin: 20px 0;">';
-                        errorHtml +=
-                            '<strong>⚠️ Veuillez corriger les erreurs suivantes :</strong><ul style="margin: 10px 0 0 20px;">';
-                        errorMessages.forEach(msg => {
-                            errorHtml += '<li>' + msg + '</li>';
-                        });
-                        errorHtml += '</ul></div>';
+                        // Afficher les erreurs dans la zone dédiée au-dessus des onglets
+                        let errorHtml = `
+                            <div class="bg-red-50 border border-red-400 text-red-800 px-4 py-3 rounded-lg mb-6 shadow-sm">
+                                <div class="flex items-start gap-3">
+                                    <svg class="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-red-900 mb-2">⚠️ Veuillez corriger les erreurs suivantes :</h3>
+                                        <ul class="list-disc list-inside space-y-1 text-sm">
+                                            ${errorMessages.map(msg => `<li>${msg}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
 
-                        // Supprimer l'ancienne notification et ajouter la nouvelle
-                        $('.cv-validation-errors').remove();
-                        $(errorHtml).addClass('cv-validation-errors').insertBefore('form');
+                        // Insérer dans la zone dédiée
+                        $('#cv-validation-errors').html(errorHtml);
 
                         // Scroller vers les erreurs
                         $('html, body').animate({
-                            scrollTop: $('.cv-validation-errors').offset().top - 100
+                            scrollTop: $('#cv-validation-errors').offset().top - 100
                         }, 300);
                     } else {
                         // Supprimer les notifications d'erreur si tout est OK
-                        $('.cv-validation-errors').remove();
+                        $('#cv-validation-errors').empty();
+                    }
+                });
+
+                // Validation en temps réel pour l'email
+                $('input[type="email"]').on('input', function() {
+                    const value = $(this).val().trim();
+                    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                    if (value === '' || pattern.test(value)) {
+                        $(this).removeClass('border-red-500').addClass('border-gray-300');
+                    } else if (value.length > 0) {
+                        $(this).removeClass('border-gray-300').addClass('border-red-500');
                     }
                 });
             });
