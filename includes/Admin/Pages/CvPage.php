@@ -1,4 +1,5 @@
 <?php
+
 namespace Admin\Pages;
 
 use Storage\OptionStore;
@@ -44,7 +45,7 @@ class CvPage
 
         // Onglet actif
         $active_tab = $_GET['tab'] ?? 'identity';
-        ?>
+?>
 
         <div class="wrap">
             <h1><?= esc_html(self::$title) ?></h1>
@@ -52,11 +53,15 @@ class CvPage
             <form method="post">
 
                 <h2 class="nav-tab-wrapper">
-                    <a href="?page=<?= self::$slug ?>&tab=identity" class="nav-tab <?= $active_tab === 'identity' ? 'nav-tab-active' : '' ?>">Identité</a>
-                    <a href="?page=<?= self::$slug ?>&tab=contact" class="nav-tab <?= $active_tab === 'contact' ? 'nav-tab-active' : '' ?>">Contact</a>
-                    <a href="?page=<?= self::$slug ?>&tab=savoir_etre" class="nav-tab <?= $active_tab === 'savoir_etre' ? 'nav-tab-active' : '' ?>">Savoir-être</a>
+                    <a href="?page=<?= self::$slug ?>&tab=identity"
+                        class="nav-tab <?= $active_tab === 'identity' ? 'nav-tab-active' : '' ?>">Identité</a>
+                    <a href="?page=<?= self::$slug ?>&tab=contact"
+                        class="nav-tab <?= $active_tab === 'contact' ? 'nav-tab-active' : '' ?>">Contact</a>
+                    <a href="?page=<?= self::$slug ?>&tab=savoir_etre"
+                        class="nav-tab <?= $active_tab === 'savoir_etre' ? 'nav-tab-active' : '' ?>">Savoir-être</a>
 
-<a href="?page=<?= self::$slug ?>&tab=autres_informations" class="nav-tab <?= $active_tab === 'autres_informations' ? 'nav-tab-active' : '' ?>">Autres Info</a>
+                    <a href="?page=<?= self::$slug ?>&tab=autres_informations"
+                        class="nav-tab <?= $active_tab === 'autres_informations' ? 'nav-tab-active' : '' ?>">Autres Info</a>
                 </h2>
 
                 <div class="tab-panel" style="<?= $active_tab === 'identity' ? '' : 'display:none;' ?>">
@@ -73,8 +78,8 @@ class CvPage
 
                 <div class="tab-panel" style="<?= $active_tab === 'autres_informations' ? '' : 'display:none;' ?>">
                     <?php
-AutresInformationsTab::render($data['autres_informations'] ?? []);
-?>
+                    AutresInformationsTab::render($data['autres_informations'] ?? []);
+                    ?>
                 </div>
 
 
@@ -84,24 +89,29 @@ AutresInformationsTab::render($data['autres_informations'] ?? []);
         </div>
 
         <style>
-            .tab-panel { margin-top: 20px; }
+            .tab-panel {
+                margin-top: 20px;
+            }
         </style>
 
         <script>
-        // JS simple pour basculer les onglets
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', e => {
-                e.preventDefault();
-                const target = new URL(tab.href).searchParams.get('tab');
+            // JS simple pour basculer les onglets
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', e => {
+                    e.preventDefault();
+                    const target = new URL(tab.href).searchParams.get('tab');
 
-                document.querySelectorAll('.tab-panel').forEach(p => p.style.display='none');
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('nav-tab-active'));
+                    document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('nav-tab-active'));
 
-                document.querySelector(`.nav-tab[href$="tab=${target}"]`).classList.add('nav-tab-active');
-                document.querySelectorAll('.tab-panel')[['identity','contact','savoir_etre'].indexOf(target)].style.display = 'block';
+                    document.querySelector(`.nav-tab[href$="tab=${target}"]`).classList.add('nav-tab-active');
+                    document.querySelectorAll('.tab-panel')[['identity', 'contact', 'savoir_etre',
+                            'autres_informations'
+                        ].indexOf(target)]
+                        .style.display = 'block';
+                });
             });
-        });
         </script>
-        <?php
+<?php
     }
 }
