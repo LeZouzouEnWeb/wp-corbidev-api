@@ -16,7 +16,7 @@ class AutresInformationsTab
         }
 
         foreach ($data['modules'] as $module) {
-            $title = sanitize_text_field($module['title'] ?? '');
+            $title = sanitize_text_field(wp_unslash($module['title'] ?? ''));
 
             if (empty($module['content'])) {
                 continue;
@@ -24,8 +24,8 @@ class AutresInformationsTab
 
             // Contenu depuis textarea (une ligne = une entrée)
             $content = is_string($module['content'])
-                ? preg_split("/\r\n|\n|\r/", $module['content'])
-                : [];
+                ? preg_split("/\r\n|\n|\r/", wp_unslash($module['content']))
+                : array_map('wp_unslash', $module['content']);
 
             $content = array_map('sanitize_text_field', $content);
             $content = array_filter($content);

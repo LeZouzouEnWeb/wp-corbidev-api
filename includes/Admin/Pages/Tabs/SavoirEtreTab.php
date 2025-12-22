@@ -10,10 +10,10 @@ class SavoirEtreTab
 
         if (isset($data) && is_string($data)) {
             // Depuis le textarea
-            $values = preg_split("/\r\n|\n|\r/", $data);
+            $values = preg_split("/\r\n|\n|\r/", wp_unslash($data));
         } elseif (is_array($data)) {
             // Depuis les inputs dynamiques
-            $values = $data;
+            $values = array_map('wp_unslash', $data);
         }
 
         $values = array_map('sanitize_text_field', $values);

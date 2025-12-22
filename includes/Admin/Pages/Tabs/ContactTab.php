@@ -10,7 +10,7 @@ class ContactTab
         $websites = [];
         if (isset($data['websites']) && is_array($data['websites'])) {
             foreach ($data['websites'] as $website) {
-                $url = esc_url_raw($website);
+                $url = esc_url_raw(wp_unslash($website));
                 if (!empty($url)) {
                     $websites[] = $url;
                 }
@@ -18,13 +18,13 @@ class ContactTab
         }
 
         return [
-            'street'      => sanitize_text_field($data['street'] ?? ''),
-            'complement'  => sanitize_text_field($data['complement'] ?? ''),
-            'postal_code' => sanitize_text_field($data['postal_code'] ?? ''),
-            'city'        => sanitize_text_field($data['city'] ?? ''),
-            'phone'       => sanitize_text_field($data['phone'] ?? ''),
-            'phone2'      => sanitize_text_field($data['phone2'] ?? ''),
-            'email'       => sanitize_email($data['email'] ?? ''),
+            'street'      => sanitize_text_field(wp_unslash($data['street'] ?? '')),
+            'complement'  => sanitize_text_field(wp_unslash($data['complement'] ?? '')),
+            'postal_code' => sanitize_text_field(wp_unslash($data['postal_code'] ?? '')),
+            'city'        => sanitize_text_field(wp_unslash($data['city'] ?? '')),
+            'phone'       => sanitize_text_field(wp_unslash($data['phone'] ?? '')),
+            'phone2'      => sanitize_text_field(wp_unslash($data['phone2'] ?? '')),
+            'email'       => sanitize_email(wp_unslash($data['email'] ?? '')),
             'websites'    => $websites,
         ];
     }
@@ -72,7 +72,7 @@ class ContactTab
                             <label class="block text-sm font-medium text-gray-700 mb-2">Code postal</label>
                             <input type="text" name="cv_options[contact][postal_code]"
                                 value="<?= esc_attr($data['postal_code'] ?? '') ?>" placeholder="75001" maxlength="5"
-                                pattern="[0-9]{5}"
+                                pattern="[0-9]{5}" title="Le code postal doit contenir exactement 5 chiffres"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
 
@@ -93,7 +93,8 @@ class ContactTab
                             Téléphone
                         </label>
                         <input type="tel" name="cv_options[contact][phone]" value="<?= esc_attr($data['phone'] ?? '') ?>"
-                            placeholder="+33 6 12 34 56 78"
+                            placeholder="+33 6 12 34 56 78" pattern="^(\+33|0)[1-9]([-. ]?[0-9]{2}){4}$"
+                            title="Format attendu : +33 6 12 34 56 78 ou 06 12 34 56 78"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
 
@@ -106,7 +107,8 @@ class ContactTab
                             Téléphone 2 <span class="text-gray-500 text-xs">(optionnel)</span>
                         </label>
                         <input type="tel" name="cv_options[contact][phone2]" value="<?= esc_attr($data['phone2'] ?? '') ?>"
-                            placeholder="+33 1 23 45 67 89"
+                            placeholder="+33 1 23 45 67 89" pattern="^(\+33|0)[1-9]([-. ]?[0-9]{2}){4}$"
+                            title="Format attendu : +33 1 23 45 67 89 ou 01 23 45 67 89"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
 
@@ -119,7 +121,7 @@ class ContactTab
                             Email
                         </label>
                         <input type="email" name="cv_options[contact][email]" value="<?= esc_attr($data['email'] ?? '') ?>"
-                            placeholder="votre.email@exemple.fr"
+                            placeholder="votre.email@exemple.fr" title="Veuillez saisir une adresse email valide"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
                 </div>
@@ -145,7 +147,8 @@ class ContactTab
                     ?>
                         <div class="website-row flex gap-2">
                             <input type="url" name="cv_options[contact][websites][]" value="<?= esc_attr($website) ?>"
-                                placeholder="https://www.exemple.com ou https://linkedin.com/in/votre-profil"
+                                placeholder="https://www.exemple.com ou https://linkedin.com/in/votre-profil" pattern="https?://.+"
+                                title="L'URL doit commencer par http:// ou https://"
                                 class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                             <button type="button"
                                 class="remove-website px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-1">
@@ -180,6 +183,8 @@ class ContactTab
                                    name="cv_options[contact][websites][]"
                                    value=""
                                    placeholder="https://www.exemple.com ou https://linkedin.com/in/votre-profil"
+                                   pattern="https?://.+"
+                                   title="L'URL doit commencer par http:// ou https://"
                                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                             <button type="button" class="remove-website px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,6 +208,121 @@ class ContactTab
                     } else {
                         // Keep at least one row, just clear it
                         $(this).siblings('input').val('');
+                    }
+                });
+
+                // Validation en temps réel pour les champs téléphone
+                $('input[type="tel"]').on('input', function() {
+                    let value = $(this).val();
+                    // Autoriser uniquement les chiffres, +, espaces, points, tirets
+                    let filtered = value.replace(/[^0-9+\s.\-]/g, '');
+
+                    if (value !== filtered) {
+                        $(this).val(filtered);
+                    }
+
+                    // Validation visuelle
+                    const pattern = /^(\+33|0)[1-9]([-. ]?[0-9]{2}){4}$/;
+                    if (filtered === '' || pattern.test(filtered)) {
+                        $(this).removeClass('border-red-500').addClass('border-gray-300');
+                    } else if (filtered.length > 0) {
+                        $(this).removeClass('border-gray-300').addClass('border-red-500');
+                    }
+                });
+
+                // Validation en temps réel pour le code postal
+                $('input[name="cv_options[contact][postal_code]"]').on('input', function() {
+                    let value = $(this).val();
+                    // Autoriser uniquement les chiffres
+                    let filtered = value.replace(/[^0-9]/g, '').substring(0, 5);
+
+                    if (value !== filtered) {
+                        $(this).val(filtered);
+                    }
+
+                    // Validation visuelle
+                    if (filtered === '' || filtered.length === 5) {
+                        $(this).removeClass('border-red-500').addClass('border-gray-300');
+                    } else if (filtered.length > 0) {
+                        $(this).removeClass('border-gray-300').addClass('border-red-500');
+                    }
+                });
+
+                // Validation en temps réel pour les URLs
+                $(document).on('input', 'input[type="url"]', function() {
+                    const value = $(this).val();
+                    const pattern = /^https?:\/\/.+/;
+
+                    if (value === '' || pattern.test(value)) {
+                        $(this).removeClass('border-red-500').addClass('border-gray-300');
+                    } else if (value.length > 0) {
+                        $(this).removeClass('border-gray-300').addClass('border-red-500');
+                    }
+                });
+
+                // Bloquer la soumission si des champs sont invalides
+                $('form').on('submit', function(e) {
+                    let hasErrors = false;
+                    let errorMessages = [];
+
+                    // Vérifier les téléphones
+                    $('input[type="tel"]').each(function() {
+                        const value = $(this).val().trim();
+                        const pattern = /^(\+33|0)[1-9]([-. ]?[0-9]{2}){4}$/;
+
+                        if (value !== '' && !pattern.test(value)) {
+                            hasErrors = true;
+                            const label = $(this).closest('div').find('label').text().trim();
+                            errorMessages.push(label + ' : format invalide');
+                            $(this).addClass('border-red-500');
+                        }
+                    });
+
+                    // Vérifier le code postal
+                    const postalCode = $('input[name="cv_options[contact][postal_code]"]').val().trim();
+                    if (postalCode !== '' && postalCode.length !== 5) {
+                        hasErrors = true;
+                        errorMessages.push('Code postal : doit contenir 5 chiffres');
+                        $('input[name="cv_options[contact][postal_code]"]').addClass('border-red-500');
+                    }
+
+                    // Vérifier les URLs
+                    $('input[type="url"]').each(function() {
+                        const value = $(this).val().trim();
+                        const pattern = /^https?:\/\/.+/;
+
+                        if (value !== '' && !pattern.test(value)) {
+                            hasErrors = true;
+                            errorMessages.push('Site web : doit commencer par http:// ou https://');
+                            $(this).addClass('border-red-500');
+                        }
+                    });
+
+                    // Bloquer si erreurs
+                    if (hasErrors) {
+                        e.preventDefault();
+
+                        // Afficher les erreurs
+                        let errorHtml =
+                            '<div style="background: #fee; border: 1px solid #fcc; color: #c00; padding: 12px; border-radius: 8px; margin: 20px 0;">';
+                        errorHtml +=
+                            '<strong>⚠️ Veuillez corriger les erreurs suivantes :</strong><ul style="margin: 10px 0 0 20px;">';
+                        errorMessages.forEach(msg => {
+                            errorHtml += '<li>' + msg + '</li>';
+                        });
+                        errorHtml += '</ul></div>';
+
+                        // Supprimer l'ancienne notification et ajouter la nouvelle
+                        $('.cv-validation-errors').remove();
+                        $(errorHtml).addClass('cv-validation-errors').insertBefore('form');
+
+                        // Scroller vers les erreurs
+                        $('html, body').animate({
+                            scrollTop: $('.cv-validation-errors').offset().top - 100
+                        }, 300);
+                    } else {
+                        // Supprimer les notifications d'erreur si tout est OK
+                        $('.cv-validation-errors').remove();
                     }
                 });
             });
