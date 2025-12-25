@@ -18,6 +18,7 @@ class Plugin
         require_once $base . '/Admin/Menu.php';
         require_once $base . '/Admin/Pages/CvPage.php';
         require_once $base . '/Api/Routes.php';
+        require_once $base . '/Api/OpenApi.php';
         require_once $base . '/Api/CvController.php';
         require_once $base . '/Storage/OptionStore.php';
     }
