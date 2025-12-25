@@ -16,102 +16,211 @@ class CvPage
 
     public function render(): void
     {
-        // Récupération des données existantes
-        $data = OptionStore::get('cv_options', [
-            'identity'    => [],
-            'contact'     => [],
-            'savoir_etre' => [],
+        // Onglet actif
+        $active_tab = $_POST['active_tab']
+            ?? $_GET['tab']
+            ?? 'identity';
+
+        // Données existantes
+        $data = OptionStore::get('contenus', [
+            'identity'            => [],
+            'contact'             => [],
+            'savoir_etre'         => [],
             'autres_informations' => [],
         ]);
 
+        // Toast state
+        $toast = null;
+
         // Sauvegarde
         if (isset($_POST['cv_save'])) {
-            $cv_post = $_POST['cv_options'] ?? [];
+            $cv_post = $_POST['contenus'] ?? [];
 
-            OptionStore::set('cv_options', [
-                'identity'    => IdentityTab::sanitize($cv_post['identity'] ?? []),
-                'contact'     => ContactTab::sanitize($cv_post['contact'] ?? []),
-                'savoir_etre' => SavoirEtreTab::sanitize($cv_post['savoir_etre'] ?? []),
-
-                'autres_informations' => AutresInformationsTab::sanitize($cv_post['autres_informations'] ?? []),
+            OptionStore::set('contenus', [
+                'identity'            => IdentityTab::sanitize($cv_post['identity'] ?? []),
+                'contact'             => ContactTab::sanitize($cv_post['contact'] ?? []),
+                'savoir_etre'         => SavoirEtreTab::sanitize($cv_post['savoir_etre'] ?? []),
+                'autres_informations' => AutresInformationsTab::sanitize(
+                    $cv_post['autres_informations'] ?? []
+                ),
             ]);
 
+            // Toast success
+            $toast = [
+                'message'  => 'Données enregistrées avec succès',
+                'type'     => 'success',
+                'duration' => 5000,
+            ];
 
-            echo '<div class="updated notice"><p>Toutes les données ont été enregistrées !</p></div>';
-
-            // Recharger les données pour affichage
-            $data = OptionStore::get('cv_options');
+            // Relecture immédiate
+            $data = OptionStore::get('contenus');
         }
+        ?>
 
-        // Onglet actif
-        $active_tab = $_GET['tab'] ?? 'identity';
-?>
+        <!-- Tailwind -->
+        <script src="https://cdn.tailwindcss.com"></script>
 
-        <div class="wrap">
-            <h1><?= esc_html(self::$title) ?></h1>
+        <div class="wrap bg-gray-100 min-h-screen">
+            <div class="max-w-7xl mx-auto py-8 px-6">
 
-            <form method="post">
-
-                <h2 class="nav-tab-wrapper">
-                    <a href="?page=<?= self::$slug ?>&tab=identity"
-                        class="nav-tab <?= $active_tab === 'identity' ? 'nav-tab-active' : '' ?>">Identité</a>
-                    <a href="?page=<?= self::$slug ?>&tab=contact"
-                        class="nav-tab <?= $active_tab === 'contact' ? 'nav-tab-active' : '' ?>">Contact</a>
-                    <a href="?page=<?= self::$slug ?>&tab=savoir_etre"
-                        class="nav-tab <?= $active_tab === 'savoir_etre' ? 'nav-tab-active' : '' ?>">Savoir-être</a>
-
-                    <a href="?page=<?= self::$slug ?>&tab=autres_informations"
-                        class="nav-tab <?= $active_tab === 'autres_informations' ? 'nav-tab-active' : '' ?>">Autres Info</a>
-                </h2>
-
-                <div class="tab-panel" style="<?= $active_tab === 'identity' ? '' : 'display:none;' ?>">
-                    <?php IdentityTab::render($data['identity'] ?? []); ?>
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg shadow-lg p-6 mb-8">
+                    <h1 class="text-3xl font-bold text-white">Gestion du CV</h1>
+                    <p class="text-blue-100 mt-2">Administration des informations du CV</p>
                 </div>
 
-                <div class="tab-panel" style="<?= $active_tab === 'contact' ? '' : 'display:none;' ?>">
-                    <?php ContactTab::render($data['contact'] ?? []); ?>
-                </div>
+                <form method="post" class="space-y-6">
 
-                <div class="tab-panel" style="<?= $active_tab === 'savoir_etre' ? '' : 'display:none;' ?>">
-                    <?php SavoirEtreTab::render($data['savoir_etre'] ?? []); ?>
-                </div>
+                    <input type="hidden" name="active_tab" value="<?= esc_attr($active_tab) ?>">
 
-                <div class="tab-panel" style="<?= $active_tab === 'autres_informations' ? '' : 'display:none;' ?>">
-                    <?php
-                    AutresInformationsTab::render($data['autres_informations'] ?? []);
-                    ?>
-                </div>
+                    <!-- Tabs -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <nav class="flex border-b border-gray-200">
+                            <?php
+                            $tabs = [
+                                'identity'            => 'Identité',
+                                'contact'             => 'Contact',
+                                'savoir_etre'         => 'Savoir-être',
+                                'autres_informations' => 'Autres informations',
+                            ];
 
+                            foreach ($tabs as $key => $label) :
+                                $active = $active_tab === $key;
+                            ?>
+                                <a href="?page=<?= self::$slug ?>&tab=<?= $key ?>"
+                                   data-tab="<?= $key ?>"
+                                   class="cv-tab px-6 py-4 text-sm font-medium border-b-2
+                                   <?= $active
+                                       ? 'border-indigo-500 text-indigo-600'
+                                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                   ?>">
+                                    <?= esc_html($label) ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </nav>
 
-                <?php submit_button('Enregistrer', 'primary', 'cv_save'); ?>
+                        <!-- Panels -->
+                        <div class="p-6 bg-gray-50 space-y-6">
 
-            </form>
+                            <div class="<?= $active_tab === 'identity' ? '' : 'hidden' ?> tab-panel">
+                                <?php IdentityTab::render($data['identity']); ?>
+                            </div>
+
+                            <div class="<?= $active_tab === 'contact' ? '' : 'hidden' ?> tab-panel">
+                                <?php ContactTab::render($data['contact']); ?>
+                            </div>
+
+                            <div class="<?= $active_tab === 'savoir_etre' ? '' : 'hidden' ?> tab-panel">
+                                <?php SavoirEtreTab::render($data['savoir_etre']); ?>
+                            </div>
+
+                            <div class="<?= $active_tab === 'autres_informations' ? '' : 'hidden' ?> tab-panel">
+                                <?php AutresInformationsTab::render($data['autres_informations']); ?>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="flex justify-end bg-white p-6 rounded-lg shadow-md">
+                        <button type="submit" name="cv_save"
+                            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                            Enregistrer
+                        </button>
+                    </div>
+
+                </form>
+            </div>
         </div>
 
-        <style>
-            .tab-panel {
-                margin-top: 20px;
-            }
-        </style>
+        <!-- Toast container -->
+        <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-3"></div>
 
         <script>
-            // JS simple pour basculer les onglets
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.addEventListener('click', e => {
-                    e.preventDefault();
-                    const target = new URL(tab.href).searchParams.get('tab');
+        /* ===========================
+           TABS MANAGER
+        ============================ */
+        document.querySelectorAll('.cv-tab').forEach(tab => {
+            tab.addEventListener('click', e => {
+                e.preventDefault();
 
-                    document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
-                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('nav-tab-active'));
+                const target = tab.dataset.tab;
+                document.querySelector('input[name="active_tab"]').value = target;
 
-                    document.querySelector(`.nav-tab[href$="tab=${target}"]`).classList.add('nav-tab-active');
-                    document.querySelectorAll('.tab-panel')[['identity', 'contact', 'savoir_etre',
-                            'autres_informations'
-                        ].indexOf(target)]
-                        .style.display = 'block';
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+                document.querySelectorAll('.cv-tab').forEach(t => {
+                    t.classList.remove('border-indigo-500', 'text-indigo-600');
+                    t.classList.add('border-transparent', 'text-gray-500');
                 });
+
+                tab.classList.add('border-indigo-500', 'text-indigo-600');
+                tab.classList.remove('border-transparent', 'text-gray-500');
+
+                document.querySelectorAll('.tab-panel')[
+                    [...document.querySelectorAll('.cv-tab')].indexOf(tab)
+                ].classList.remove('hidden');
             });
+        });
+
+        /* ===========================
+           TOAST SYSTEM (REUSABLE)
+        ============================ */
+        function showToast(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('toast-container');
+
+            const colors = {
+                success: 'bg-green-600',
+                error:   'bg-red-600',
+                warning: 'bg-yellow-500 text-black',
+                info:    'bg-blue-600'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `
+                ${colors[type] || colors.info}
+                text-white px-6 py-4 rounded-lg shadow-xl
+                flex items-center gap-3
+                opacity-0 translate-y-4
+                transition-all duration-500
+            `;
+
+            toast.innerHTML = `
+                <span class="font-medium">${message}</span>
+                <button class="ml-4 opacity-70 hover:opacity-100">&times;</button>
+            `;
+
+            container.appendChild(toast);
+
+            // show
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0', 'translate-y-4');
+                toast.classList.add('opacity-100', 'translate-y-0');
+            });
+
+            // close button
+            toast.querySelector('button').onclick = () => removeToast(toast);
+
+            // auto hide
+            setTimeout(() => removeToast(toast), duration);
+        }
+
+        function removeToast(toast) {
+            toast.classList.add('opacity-0', 'translate-y-4');
+            toast.classList.remove('opacity-100', 'translate-y-0');
+            setTimeout(() => toast.remove(), 500);
+        }
+
+        <?php if ($toast): ?>
+        document.addEventListener('DOMContentLoaded', () => {
+            showToast(
+                <?= json_encode($toast['message']) ?>,
+                <?= json_encode($toast['type']) ?>,
+                <?= (int) $toast['duration'] ?>
+            );
+        });
+        <?php endif; ?>
         </script>
-<?php
+
+        <?php
     }
 }
