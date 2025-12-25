@@ -54,7 +54,7 @@ class ContactTab
                             </svg>
                             Rue
                         </label>
-                        <input type="text" name="cv_options[contact][street]" value="<?= esc_attr($data['street'] ?? '') ?>"
+                        <input type="text" name="contenus[contact][street]" value="<?= esc_attr($data['street'] ?? '') ?>"
                             placeholder="Ex: 123 Rue de la République"
                             pattern="[a-zA-ZÀ-ÿ0-9\s\-_']+"
                             title="Seuls les lettres, chiffres, espaces, tirets, underscores et apostrophes sont autorisés"
@@ -63,7 +63,7 @@ class ContactTab
 
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Adresse complémentaire</label>
-                        <input type="text" name="cv_options[contact][complement]"
+                        <input type="text" name="contenus[contact][complement]"
                             value="<?= esc_attr($data['complement'] ?? '') ?>"
                             placeholder="Appartement, étage, bâtiment... (optionnel)"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
@@ -72,7 +72,7 @@ class ContactTab
                     <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Code postal</label>
-                            <input type="text" name="cv_options[contact][postal_code]"
+                            <input type="text" name="contenus[contact][postal_code]"
                                 value="<?= esc_attr($data['postal_code'] ?? '') ?>" placeholder="75001" maxlength="5"
                                 pattern="[0-9]{5}" title="Le code postal doit contenir exactement 5 chiffres"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
@@ -80,7 +80,7 @@ class ContactTab
 
                         <div class="md:col-span-3">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Ville</label>
-                            <input type="text" name="cv_options[contact][city]" value="<?= esc_attr($data['city'] ?? '') ?>"
+                            <input type="text" name="contenus[contact][city]" value="<?= esc_attr($data['city'] ?? '') ?>"
                                 placeholder="Paris"
                                 pattern="[a-zA-ZÀ-ÿ\s\-_']+"
                                 title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
@@ -96,7 +96,7 @@ class ContactTab
                             </svg>
                             Téléphone
                         </label>
-                        <input type="tel" name="cv_options[contact][phone]" value="<?= esc_attr($data['phone'] ?? '') ?>"
+                        <input type="tel" name="contenus[contact][phone]" value="<?= esc_attr($data['phone'] ?? '') ?>"
                             placeholder="+33 6 12 34 56 78" pattern="^(\+33|0)[1-9]([-. ]?[0-9]{2}){4}$"
                             title="Format attendu : +33 6 12 34 56 78 ou 06 12 34 56 78"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
@@ -110,7 +110,7 @@ class ContactTab
                             </svg>
                             Téléphone 2 <span class="text-gray-500 text-xs">(optionnel)</span>
                         </label>
-                        <input type="tel" name="cv_options[contact][phone2]" value="<?= esc_attr($data['phone2'] ?? '') ?>"
+                        <input type="tel" name="contenus[contact][phone2]" value="<?= esc_attr($data['phone2'] ?? '') ?>"
                             placeholder="+33 1 23 45 67 89" pattern="^(\+33|0)[1-9]([-. ]?[0-9]{2}){4}$"
                             title="Format attendu : +33 1 23 45 67 89 ou 01 23 45 67 89"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
@@ -124,7 +124,7 @@ class ContactTab
                             </svg>
                             Email
                         </label>
-                        <input type="email" name="cv_options[contact][email]" value="<?= esc_attr($data['email'] ?? '') ?>"
+                        <input type="email" name="contenus[contact][email]" value="<?= esc_attr($data['email'] ?? '') ?>"
                             placeholder="votre.email@exemple.fr" title="Veuillez saisir une adresse email valide"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
@@ -150,7 +150,7 @@ class ContactTab
                     foreach ($websites as $index => $website):
                     ?>
                         <div class="website-row flex gap-2">
-                            <input type="url" name="cv_options[contact][websites][]" value="<?= esc_attr($website) ?>"
+                            <input type="url" name="contenus[contact][websites][]" value="<?= esc_attr($website) ?>"
                                 placeholder="https://www.exemple.com ou https://linkedin.com/in/votre-profil" pattern="https?://.+"
                                 title="L'URL doit commencer par http:// ou https://"
                                 class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
@@ -184,7 +184,7 @@ class ContactTab
                     const newRow = `
                         <div class="website-row flex gap-2">
                             <input type="url"
-                                   name="cv_options[contact][websites][]"
+                                   name="contenus[contact][websites][]"
                                    value=""
                                    placeholder="https://www.exemple.com ou https://linkedin.com/in/votre-profil"
                                    pattern="https?://.+"

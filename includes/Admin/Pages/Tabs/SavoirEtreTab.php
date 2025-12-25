@@ -4,15 +4,17 @@ namespace Admin\Pages;
 
 class SavoirEtreTab
 {
-    public static function sanitize(array $data): array
+    /**
+     * Sanitize : accepte soit une string (textarea),
+     * soit un tableau (inputs dynamiques)
+     */
+    public static function sanitize(array|string $data): array
     {
         $values = [];
 
-        if (isset($data) && is_string($data)) {
-            // Depuis le textarea
+        if (is_string($data)) {
             $values = preg_split("/\r\n|\n|\r/", wp_unslash($data));
         } elseif (is_array($data)) {
-            // Depuis les inputs dynamiques
             $values = array_map('wp_unslash', $data);
         }
 
@@ -20,187 +22,138 @@ class SavoirEtreTab
         return array_values(array_filter($values));
     }
 
+    /**
+     * Render
+     */
     public static function render(array $data): void
     {
         $textarea_value = implode("\n", $data);
-?>
-        <!-- Mode Toggle -->
+        ?>
+
+        <!-- MODE TOGGLE -->
         <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
             <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" id="savoir-etre-mode" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
+                <input type="checkbox" id="savoir-etre-mode"
+                       class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                 <span class="text-sm font-medium text-gray-700">
-                    <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
                     Mode texte multi-lignes
                 </span>
             </label>
-            <p class="mt-2 text-xs text-gray-600">Cochez pour saisir vos qualités ligne par ligne dans un textarea</p>
+            <p class="mt-2 text-xs text-gray-600">
+                Cochez pour saisir les qualités ligne par ligne dans un textarea
+            </p>
         </div>
 
-        <!-- Dynamic List Mode -->
+        <!-- MODE LISTE DYNAMIQUE -->
         <div id="savoir-etre-dynamic">
             <div id="savoir-etre-list" class="space-y-3 mb-4">
                 <?php if (empty($data)): ?>
                     <div class="savoir-etre-item flex gap-2">
-                        <input type="text" name="cv_options[savoir_etre][]" value=""
-                            placeholder="Ex: Travail d'équipe, Autonomie, Créativité..."
-                            pattern="[a-zA-ZÀ-ÿ\s\-_'‘’]+"
-                            title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-savoir-etre-field" />
-                        <button type="button" class="remove px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                        <input type="text"
+                               placeholder="Ex: Travail d'équipe"
+                               class="cv-savoir-etre-field flex-1 px-4 py-2 border border-gray-300 rounded-lg">
+                        <button type="button" class="remove px-3 py-2 bg-red-500 text-white rounded-lg">✕</button>
                     </div>
                 <?php else: ?>
                     <?php foreach ($data as $value): ?>
                         <div class="savoir-etre-item flex gap-2">
-                            <input type="text" name="cv_options[savoir_etre][]" value="<?= esc_attr($value) ?>"
-                                placeholder="Ex: Travail d'équipe, Autonomie, Créativité..."
-                                pattern="[a-zA-ZÀ-ÿ\s\-_'‘’]+"
-                                title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
-                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-savoir-etre-field" />
-                            <button type="button" class="remove px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                            <input type="text"
+                                   value="<?= esc_attr($value) ?>"
+                                   class="cv-savoir-etre-field flex-1 px-4 py-2 border border-gray-300 rounded-lg">
+                            <button type="button" class="remove px-3 py-2 bg-red-500 text-white rounded-lg">✕</button>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
-            <button type="button" id="add-savoir-etre" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors shadow-sm">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Ajouter une qualité
+
+            <button type="button" id="add-savoir-etre"
+                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg">
+                + Ajouter une qualité
             </button>
         </div>
 
-        <!-- Textarea Mode -->
+        <!-- MODE TEXTAREA -->
         <div id="savoir-etre-textarea-container" class="hidden">
-            <textarea id="savoir-etre-textarea" rows="8"
-                placeholder="Entrez une qualité par ligne...&#10;Ex:&#10;Travail d'équipe&#10;Autonomie&#10;Créativité"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"><?= esc_textarea($textarea_value) ?></textarea>
+            <textarea id="savoir-etre-textarea"
+                      rows="8"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg font-mono text-sm"><?= esc_textarea($textarea_value) ?></textarea>
             <p class="mt-2 text-xs text-gray-600">Une qualité par ligne</p>
         </div>
 
         <script>
-            (function() {
-                const listContainer = document.getElementById('savoir-etre-dynamic');
-                const textareaContainer = document.getElementById('savoir-etre-textarea-container');
-                const checkbox = document.getElementById('savoir-etre-mode');
-                const list = document.getElementById('savoir-etre-list');
-                const addBtn = document.getElementById('add-savoir-etre');
-                const textarea = document.getElementById('savoir-etre-textarea');
+        (function () {
+            const checkbox = document.getElementById('savoir-etre-mode');
+            const dynamic = document.getElementById('savoir-etre-dynamic');
+            const textareaBox = document.getElementById('savoir-etre-textarea-container');
+            const textarea = document.getElementById('savoir-etre-textarea');
+            const list = document.getElementById('savoir-etre-list');
+            const addBtn = document.getElementById('add-savoir-etre');
+            const form = list.closest('form');
 
-                checkbox.addEventListener('change', () => {
-                    if (checkbox.checked) {
-                        listContainer.classList.add('hidden');
-                        textareaContainer.classList.remove('hidden');
-                    } else {
-                        listContainer.classList.remove('hidden');
-                        textareaContainer.classList.add('hidden');
-                    }
-                });
+            /* Toggle mode */
+            checkbox.addEventListener('change', () => {
+                dynamic.classList.toggle('hidden', checkbox.checked);
+                textareaBox.classList.toggle('hidden', !checkbox.checked);
+            });
 
-                addBtn.addEventListener('click', () => {
+            /* Add input */
+            addBtn.addEventListener('click', () => {
+                const div = document.createElement('div');
+                div.className = 'savoir-etre-item flex gap-2';
+                div.innerHTML = `
+                    <input type="text" class="cv-savoir-etre-field flex-1 px-4 py-2 border border-gray-300 rounded-lg">
+                    <button type="button" class="remove px-3 py-2 bg-red-500 text-white rounded-lg">✕</button>
+                `;
+                list.appendChild(div);
+                syncTextarea();
+            });
+
+            /* Remove input */
+            list.addEventListener('click', e => {
+                if (e.target.classList.contains('remove')) {
+                    e.target.parentElement.remove();
+                    syncTextarea();
+                }
+            });
+
+            /* Textarea -> inputs */
+            textarea.addEventListener('input', () => {
+                const lines = textarea.value.split(/\r?\n/).filter(v => v.trim());
+                list.innerHTML = '';
+                lines.forEach(v => {
                     const div = document.createElement('div');
                     div.className = 'savoir-etre-item flex gap-2';
                     div.innerHTML = `
-                    <input type="text" name="cv_options[savoir_etre][]" value=""
-                           placeholder="Ex: Travail d'équipe, Autonomie, Créativité..."
-                           pattern="[a-zA-ZÀ-ÿ\\s\\-_'‘’]+"
-                           title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
-                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-savoir-etre-field" />
-                    <button type="button" class="remove px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                `;
-                    list.appendChild(div);
-                    syncTextarea();
-                    attachSavoirEtreValidation();
-                });
-
-                list.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('remove') || e.target.closest('.remove')) {
-                        const item = e.target.closest('.savoir-etre-item');
-                        if (item) {
-                            item.remove();
-                            syncTextarea();
-                        }
-                    }
-                });
-
-                textarea.addEventListener('input', () => {
-                    const lines = textarea.value.split(/\r\n|\n|\r/).filter(l => l.trim() !== '');
-                    list.innerHTML = '';
-                    lines.forEach(l => {
-                        const div = document.createElement('div');
-                        div.className = 'savoir-etre-item flex gap-2';
-                        div.innerHTML = `
-                        <input type="text" name="cv_options[savoir_etre][]" value="${l.replace(/"/g,'&quot;')}"
-                               placeholder="Ex: Travail d'équipe, Autonomie, Créativité..."
-                               pattern="[a-zA-ZÀ-ÿ\\s\\-_'‘’]+"
-                               title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cv-savoir-etre-field" />
-                        <button type="button" class="remove px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
+                        <input type="text" value="${v.replace(/"/g, '&quot;')}"
+                               class="cv-savoir-etre-field flex-1 px-4 py-2 border border-gray-300 rounded-lg">
+                        <button type="button" class="remove px-3 py-2 bg-red-500 text-white rounded-lg">✕</button>
                     `;
-                        list.appendChild(div);
-                    });
-                    attachSavoirEtreValidation();
+                    list.appendChild(div);
                 });
+            });
 
-                const form = list.closest('form');
-                form.addEventListener('submit', () => {
-                    const inputs = list.querySelectorAll('input[type=text]');
-                    const values = Array.from(inputs).map(i => i.value).filter(v => v.trim() !== '');
-                    textarea.value = values.join("\n");
-                });
+            /* Inputs -> textarea */
+            function syncTextarea() {
+                textarea.value = Array.from(
+                    list.querySelectorAll('input')
+                ).map(i => i.value).filter(v => v.trim()).join("\n");
+            }
 
-                function syncTextarea() {
-                    const inputs = list.querySelectorAll('input[type=text]');
-                    const values = Array.from(inputs).map(i => i.value).filter(v => v.trim() !== '');
-                    textarea.value = values.join("\n");
+            /* FINAL SUBMIT HANDLING */
+            form.addEventListener('submit', () => {
+                if (checkbox.checked) {
+                    textarea.setAttribute('name', 'contenus[savoir_etre]');
+                    list.querySelectorAll('input').forEach(i => i.removeAttribute('name'));
+                } else {
+                    textarea.removeAttribute('name');
+                    list.querySelectorAll('input').forEach(i =>
+                        i.setAttribute('name', 'contenus[savoir_etre][]')
+                    );
                 }
-
-                function attachSavoirEtreValidation() {
-                    document.querySelectorAll('.cv-savoir-etre-field').forEach(field => {
-                        field.removeEventListener('input', handleSavoirEtreInput);
-                        field.addEventListener('input', handleSavoirEtreInput);
-                    });
-                }
-
-                function handleSavoirEtreInput(e) {
-                    let value = e.target.value;
-                    let filtered = value.replace(/[^a-zA-ZÀ-ÿ\s\-_''\u2018\u2019]/g, '');
-
-                    if (value !== filtered) {
-                        e.target.value = filtered;
-                    }
-
-                    const pattern = /^[a-zA-ZÀ-ÿ\s\-_''\u2018\u2019]+$/;
-                    if (filtered === '' || pattern.test(filtered)) {
-                        e.target.classList.remove('border-red-500');
-                        e.target.classList.add('border-gray-300');
-                    } else if (filtered.length > 0) {
-                        e.target.classList.remove('border-gray-300');
-                        e.target.classList.add('border-red-500');
-                    }
-                }
-
-                // Attacher la validation initiale
-                attachSavoirEtreValidation();
-            })();
+            });
+        })();
         </script>
-<?php
+
+        <?php
     }
 }

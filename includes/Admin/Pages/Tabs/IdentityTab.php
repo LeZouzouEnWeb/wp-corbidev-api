@@ -50,7 +50,7 @@ class IdentityTab
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Poste</label>
-                <input type="text" name="cv_options[identity][job_title]"
+                <input type="text" name="contenus[identity][job_title]"
                     value="<?= esc_attr($data['job_title'] ?? '') ?>" placeholder="Ex: Développeur Full Stack"
                     pattern="[a-zA-ZÀ-ÿ\s\-_']+"
                     title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
@@ -59,14 +59,14 @@ class IdentityTab
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Date de naissance</label>
-                <input type="date" name="cv_options[identity][birth_date]"
+                <input type="date" name="contenus[identity][birth_date]"
                     value="<?= esc_attr($data['birth_date'] ?? '') ?>"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
-                <input type="text" name="cv_options[identity][first_name]"
+                <input type="text" name="contenus[identity][first_name]"
                     value="<?= esc_attr($data['first_name'] ?? '') ?>" placeholder="Votre prénom"
                     pattern="[a-zA-ZÀ-ÿ\s\-_']+"
                     title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
@@ -75,7 +75,7 @@ class IdentityTab
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
-                <input type="text" name="cv_options[identity][last_name]"
+                <input type="text" name="contenus[identity][last_name]"
                     value="<?= esc_attr($data['last_name'] ?? '') ?>" placeholder="Votre nom"
                     pattern="[a-zA-ZÀ-ÿ\s\-_']+"
                     title="Seuls les lettres, espaces, tirets, underscores et apostrophes sont autorisés"
@@ -97,7 +97,7 @@ class IdentityTab
         <div class="mb-4">
             <label
                 class="flex items-center gap-2 cursor-pointer p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <input type="checkbox" name="cv_options[identity][has_driving_license]" value="1"
+                <input type="checkbox" name="contenus[identity][has_driving_license]" value="1"
                     id="has_driving_license"
                     class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                     <?= !empty($data['has_driving_license']) ? 'checked' : '' ?>>
@@ -116,7 +116,7 @@ class IdentityTab
                         ?>
                 <label
                     class="flex items-center gap-2 p-2 bg-white rounded border border-gray-200 cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-colors">
-                    <input type="checkbox" name="cv_options[identity][driving_licenses][]"
+                    <input type="checkbox" name="contenus[identity][driving_licenses][]"
                         value="<?= esc_attr($license) ?>"
                         class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                         <?= in_array($license, $selected) ? 'checked' : '' ?>>
@@ -135,7 +135,7 @@ class IdentityTab
             </svg>
             Résumé / Présentation
         </h3>
-        <textarea name="cv_options[identity][summary]" rows="5"
+        <textarea name="contenus[identity][summary]" rows="5"
             placeholder="Présentez-vous brièvement : votre parcours, vos compétences clés, vos objectifs professionnels..."
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"><?= esc_textarea($data['summary'] ?? '') ?></textarea>
         <p class="mt-2 text-xs text-gray-500">Ce texte apparaîtra en introduction de votre CV</p>
@@ -182,7 +182,7 @@ class IdentityTab
         $image_url = $attachment_id ? wp_get_attachment_image_url($attachment_id, 'thumbnail') : '';
     ?>
 <div class="cv-media-field">
-    <input type="hidden" name="cv_options[identity][<?= esc_attr($key) ?>]" value="<?= esc_attr($attachment_id) ?>">
+    <input type="hidden" name="contenus[identity][<?= esc_attr($key) ?>]" value="<?= esc_attr($attachment_id) ?>">
 
     <div class="flex flex-col gap-3">
         <div class="cv-media-preview <?= $image_url ? 'p-2 bg-gray-50 rounded-lg border border-gray-200' : '' ?>">
