@@ -1,13 +1,10 @@
 <?php
-
-namespace Api;
+// Ce contrôleur OpenApi est désormais spécifique au module CV (Pages_cv)
+// Il n'utilise pas de namespace global, pour être auto-chargé par le loader du module
 
 use WP_REST_Request;
 use WP_REST_Response;
 
-/**
- * Générateur OpenAPI 3.0.3 pour l'API CV
- */
 class OpenApi
 {
     public static function generate(WP_REST_Request $request): WP_REST_Response
@@ -30,7 +27,6 @@ class OpenApi
                     'description' => 'Production'
                 ]
             ],
-
             /* =========================
              * PATHS
              * ========================= */
@@ -145,55 +141,8 @@ class OpenApi
                             ]
                         ]
                     ]
-                ],
-
-                /* ===== Legacy ===== */
-
-                '/all' => [
-                    'get' => [
-                        'summary' => 'Ancien endpoint global (legacy)',
-                        'deprecated' => true,
-                        'responses' => [
-                            '200' => [
-                                'description' => 'Succès',
-                                'content' => [
-                                    'application/json' => [
-                                        'schema' => [
-                                            '$ref' => '#/components/schemas/Contenus'
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ],
-
-                '/module/{module}' => [
-                    'get' => [
-                        'summary' => 'Ancien endpoint module (legacy)',
-                        'deprecated' => true,
-                        'parameters' => [
-                            [
-                                'name' => 'module',
-                                'in' => 'path',
-                                'required' => true,
-                                'schema' => ['type' => 'string']
-                            ]
-                        ],
-                        'responses' => [
-                            '200' => [
-                                'description' => 'Succès',
-                                'content' => [
-                                    'application/json' => [
-                                        'schema' => [
-                                            '$ref' => '#/components/schemas/Module'
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
                 ]
+
             ],
 
             /* =========================
@@ -277,14 +226,7 @@ class OpenApi
             ]
         ];
 
-        return new WP_REST_Response(
-            $spec,
-            200,
-            array_merge(
-                ['Content-Type' => 'application/json; charset=utf-8'],
-                self::corsHeaders()
-            )
-        );
+        return new WP_REST_Response($spec, 200);
     }
 
     /* =========================
@@ -307,10 +249,10 @@ class OpenApi
         return [
             'identity' => self::exampleIdentity(),
             'contact' => [
-                'email' => 'contact@corbisier.fr',
+                'email' => 'contact@domaine.fr',
                 'phone' => '+33 6 00 00 00 00',
-                'website' => 'https://corbisier.fr',
-                'linkedin' => 'https://linkedin.com/in/ericcorbisier'
+                'website' => 'https://ton-site.fr',
+                'linkedin' => 'https://linkedin.com/in/user_name'
             ],
             'savoir_etre' => [
                 'Autonome',
@@ -324,12 +266,15 @@ class OpenApi
         ];
     }
 
+
     private static function corsHeaders(): array
     {
         return [
-            'Access-Control-Allow-Origin'  => '*',
+            'Access-Control-Allow-Origin' => '*',
             'Access-Control-Allow-Methods' => 'GET, OPTIONS',
-            'Access-Control-Allow-Headers' => 'Content-Type, Authorization'
+            'Access-Control-Allow-Headers' => 'Content-Type',
         ];
     }
+
+    // ... (autres méthodes utilitaires, inchangées)
 }

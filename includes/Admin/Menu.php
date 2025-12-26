@@ -1,4 +1,5 @@
 <?php
+
 namespace Admin;
 
 class Menu
@@ -32,13 +33,69 @@ class Menu
             'manage_options',
             'api',
             function () use ($manifests) {
-                echo '<div class="wrap"><h1>APIs</h1><ul>';
+                echo '<script src="https://cdn.tailwindcss.com"></script>';
+                echo '<script>tailwind.config = {theme: {extend: {colors: {"brand-primary": "#a78bfa"}}}}</script>';
+                echo '<style>.via-brand-primary { --tw-gradient-via-position: 50%!important; --tw-gradient-stops: var(--tw-gradient-from), #2026ed var(--tw-gradient-via-position), var(--tw-gradient-to)!important; z-index: 999; }</style>';
+                echo '<div class="wrap"><div class="max-w-7xl mx-auto py-8 px-6">';
+
+                // Header like Pages_cv: gradient background, white title and description with icon
+                echo '<div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg shadow-lg p-6 mb-6">';
+                echo '<div class="flex items-center gap-4">';
+                // Inline SVG icon (network nodes) — more API-like
+                echo '<svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" viewBox="0 0 24 24" fill="none">';
+                echo '<circle cx="12" cy="6" r="2" fill="white" />';
+                echo '<circle cx="5" cy="17" r="2" fill="white" />';
+                echo '<circle cx="19" cy="17" r="2" fill="white" />';
+                echo '<path d="M12 8v3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+                echo '<path d="M6.7 15.3L11 11" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+                echo '<path d="M17.3 15.3L13 11" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+                echo '</svg>';
+                echo '<div>';
+                echo '<h1 class="text-3xl font-bold text-white">APIs</h1>';
+                echo '<p class="text-blue-100 mt-2">Liste et gestion des APIs disponibles dans le plugin.</p>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+
+                echo '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">';
+
                 foreach ($manifests as $slug => $manifest) {
                     $menu_slug = 'api-' . $slug;
-                    $name = isset($manifest['display_name']) ? esc_html($manifest['display_name']) : esc_html($slug);
-                    echo '<li><a href="' . esc_attr(admin_url('admin.php?page=' . $menu_slug)) . '">' . $name . '</a></li>';
+                    $name = $manifest['name'] ?? ($manifest['display_name'] ?? $slug);
+                    $description = $manifest['description'] ?? '';
+                    $url = admin_url('admin.php?page=' . $menu_slug);
+
+                    // Card with gradient header and white body (like Pages_cv style)
+                    // Add a relative wrapper so we can place a luminous halo above the card
+                    echo '<div class="relative">';
+
+                    // Halo lumineux diffus (glow) au-dessus de la carte
+                    echo '<div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent"></div>';
+
+                    // Anchor/card
+                    echo '<a href="' . esc_url($url) . '" class="block rounded-lg overflow-hidden shadow hover:shadow-lg transition relative z-10">';
+                    // Header (reduced padding) -> solid pastel (slightly darker) and sober title
+                    echo '<div class="p-2" style="background-color: #82abf5;">';
+                    echo '<h3 class="text-lg font-semibold text-white">' . esc_html($name) . '</h3>';
+                    echo '</div>';
+
+                    // Body (reduced padding)
+                    echo '<div class="bg-white p-3">';
+                    if (!empty($description)) {
+                        echo '<p class="text-gray-700 mb-4">' . esc_html($description) . '</p>';
+                    }
+                    echo '<div class="text-right">';
+                    echo '<span class="inline-block px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Gérer</span>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '</a>';
+
+                    // (no external halo; luminous band above is used)
+
+                    echo '</div>'; // end relative wrapper
                 }
-                echo '</ul></div>';
+
+                echo '</div></div></div>';
             },
             'dashicons-networking',
             30
