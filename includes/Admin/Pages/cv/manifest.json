@@ -1,7 +1,11 @@
 {
   "slug": "cv",
   "display_name": "CV",
-  "modules": ["identity", "experience", "education"],
+  "modules": [
+    "identity",
+    "experience",
+    "education"
+  ],
   "admin_class": "Admin\\Pages\\CvPage",
   "api_contract": "openapi.json",
   "name": "CV Headless API",
@@ -9,16 +13,16 @@
   "routes": [
     {
       "namespace": "cv/v1",
-      "route": "/contenus",
+      "route": "/",
       "methods": "GET",
       "callback": "CvController@getAll",
       "permission_callback": "__return_true"
     },
     {
       "namespace": "cv/v1",
-      "route": "/contenus/(?P<module>[a-z_]+)",
+      "route": "/contenus",
       "methods": "GET",
-      "callback": "CvController@getModule",
+      "callback": "CvController@getAll",
       "permission_callback": "__return_true"
     },
     {
@@ -30,9 +34,23 @@
     },
     {
       "namespace": "cv/v1",
+      "route": "/contenus/(?P<module>[a-z_]+)",
+      "methods": "GET",
+      "callback": "CvController@getModule",
+      "permission_callback": "__return_true"
+    },
+    {
+      "namespace": "cv/v1",
       "route": "/openapi",
       "methods": "GET",
       "callback": "OpenApi@generate",
+      "permission_callback": "__return_true"
+    },
+    {
+      "namespace": "cv/v1",
+      "route": "/status",
+      "methods": "GET",
+      "callback": "CvController@getStatus",
       "permission_callback": "__return_true"
     }
   ]

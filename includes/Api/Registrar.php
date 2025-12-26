@@ -26,10 +26,11 @@ class Registrar
             if (is_string($callback) && (strpos($callback, '@') !== false || strpos($callback, '::') !== false)) {
                 $parts = preg_split('/[@:]{1,2}/', $callback);
                 if (count($parts) === 2) {
-                    $callback = [
-                        class_exists($parts[0]) ? $parts[0] : (isset($manifest['namespace']) ? $manifest['namespace'] . '\\' . $parts[0] : $parts[0]),
-                        $parts[1]
-                    ];
+                    $class = $parts[0];
+                    if (!class_exists($class) && !empty($manifest['namespace_php'])) {
+                        $class = $manifest['namespace_php'] . '\\' . $parts[0];
+                    }
+                    $callback = [$class, $parts[1]];
                 }
             }
 

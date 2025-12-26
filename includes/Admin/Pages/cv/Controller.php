@@ -10,6 +10,20 @@ use WP_REST_Response;
 class CvController
 {
     /**
+     * GET /cv/v1/status
+     * Endpoint de status simple
+     */
+    public static function getStatus(): WP_REST_Response
+    {
+        return new WP_REST_Response([
+            'status' => 'ok',
+            'message' => 'API CV disponible',
+            'timestamp' => time(),
+        ], 200);
+    }
+
+
+    /**
      * GET /cv/v1/contenus
      * Retourne l’ensemble du CV enrichi avec les médias
      */
