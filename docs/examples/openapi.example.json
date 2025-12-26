@@ -1,0 +1,7 @@
+{
+  "openapi": "3.0.0",
+  "info": {"title": "CV API Example","version": "1.0.0"},
+  "paths": {
+    "/info": {"get": {"responses": {"200": {"description": "OK"}}}}
+  }
+}

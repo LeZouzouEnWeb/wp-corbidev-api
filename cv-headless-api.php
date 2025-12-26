@@ -1,7 +1,8 @@
 <?php
+
 /**
- * Plugin Name: CV Headless API
- * Description: Gestion de CV modulaire avec API REST JSON
+ * Plugin Name: Headless API
+ * Description: Gestion d'APIs modulaires avec API REST JSON
  * Version: 1.0.1
  * Author: Éric Corbisier
  */
