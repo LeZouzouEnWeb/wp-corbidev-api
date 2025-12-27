@@ -4,8 +4,6 @@
 // Il n'utilise pas de namespace global, pour être auto-chargé par le loader du module
 
 use Storage\OptionStore;
-use WP_REST_Request;
-use WP_REST_Response;
 
 class CvController
 {

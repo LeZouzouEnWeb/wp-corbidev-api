@@ -1,7 +1,6 @@
 <?php
 // Contrôleur générique pour endpoint de status (health check)
 
-use WP_REST_Response;
 
 class StatusController
 {

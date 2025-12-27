@@ -1,7 +1,5 @@
 <?php
 // Contrôleur générique pour exposer l'OpenAPI d'un module selon le slug passé en paramètre
-use WP_REST_Request;
-use WP_REST_Response;
 
 class OpenApiPage
 {

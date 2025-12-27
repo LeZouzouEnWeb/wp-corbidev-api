@@ -1,6 +1,5 @@
 <?php
 // OpenAPI générique minimaliste pour toutes les APIs découvertes
-use WP_REST_Response;
 
 class OpenApiTable
 {
