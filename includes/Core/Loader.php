@@ -14,10 +14,13 @@ class Loader
     {
         $manifests = [];
 
-        // The Plugin passes $pluginBase as the `includes` folder.
-        // Admin pages live under `includes/Admin/Pages/Pages_*`.
-        $pattern = $pluginBase . '/Admin/Pages/Pages_*';
-        $dirs = glob($pattern, GLOB_ONLYDIR);
+        // Le plugin passe $pluginBase comme dossier includes.
+        // On prend tous les sous-dossiers de includes/Admin/Pages comme modules.
+        $pattern = $pluginBase . '/Admin/Pages/*';
+        $dirs = array_filter(glob($pattern, GLOB_ONLYDIR), function($dir) {
+            $base = basename($dir);
+            return $base !== '.' && $base !== '..';
+        });
         if (!$dirs) {
             return [];
         }
