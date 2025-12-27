@@ -172,7 +172,7 @@ class Menu
                 foreach ($manifests as $slug => $manifest) {
                     $adminClass = $manifest['admin_class'] ?? '';
                     $classOk = $adminClass && class_exists($adminClass) ? '<span style="color:green">OK</span>' : '<span style="color:red">Non</span>';
-                    $pageFile = !empty($manifest['__path']) ? dirname($manifest['__path']) . '/Page.php' : '';
+                    $pageFile = !empty($manifest['__path']) ? $manifest['__path'] . '/Page.php' : '';
                     $pageFileOk = $pageFile && file_exists($pageFile) ? '<span style="color:green">' . basename($pageFile) . '</span>' : '<span style="color:red">Absent</span>';
                     $manifestPhp = $manifestJson = null;
                     $manifestPhpPath = $manifest['__path'] . '/Pages.php';
@@ -181,29 +181,112 @@ class Menu
                     $manifestContent = '';
                     if (file_exists($manifestPhpPath)) {
                         $manifestFound = '<span style="color:green">Pages.php</span>';
-                        ob_start();
                         $data = include $manifestPhpPath;
-                        var_dump($data);
-                        $manifestContent = '<pre>' . htmlspecialchars(ob_get_clean()) . '</pre>';
+                        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        $manifestContent = htmlspecialchars($json);
                     } elseif (file_exists($manifestJsonPath)) {
                         $manifestFound = '<span style="color:green">manifest.json</span>';
                         $data = json_decode(file_get_contents($manifestJsonPath), true);
-                        $manifestContent = '<pre>' . htmlspecialchars(var_export($data, true)) . '</pre>';
+                        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        $manifestContent = htmlspecialchars($json);
                     } else {
                         $manifestFound = '<span style="color:red">Aucun</span>';
                         $manifestContent = '';
                     }
+                    $rowId = 'manifest-row-' . md5($slug);
                     echo '<tr>';
                     echo '<td>' . esc_html($slug) . '</td>';
                     echo '<td>' . esc_html($adminClass) . '</td>';
                     echo '<td>' . $classOk . '</td>';
                     echo '<td>' . $pageFileOk . '</td>';
                     echo '<td>' . $manifestFound . '</td>';
-                    echo '<td>' . $manifestContent . '</td>';
+                    echo '<td><button class="toggle-json" data-target="' . $rowId . '">Afficher/masquer</button></td>';
                     echo '</tr>';
+                    echo '<tr id="' . $rowId . '" class="json-content-row" style="display:none"><td colspan="6"><pre class="json-content vscode-dark" style="margin:0">' . $manifestContent . '</pre></td></tr>';
                 }
                 echo '</tbody></table>';
-                echo '</div>';
+?>
+            <style>
+                .vscode-dark {
+                    background: #1e1e1e;
+                    color: #d4d4d4;
+                    font-family: "Fira Mono", "Consolas", "Menlo", "Monaco", "monospace";
+                    font-size: 14px;
+                    border-radius: 6px;
+                    padding: 16px;
+                    overflow-x: auto;
+                }
+
+                .vscode-dark .json-key {
+                    color: #9cdcfe;
+                }
+
+                .vscode-dark .json-string {
+                    color: #ce9178;
+                }
+
+                .vscode-dark .json-number {
+                    color: #b5cea8;
+                }
+
+                .vscode-dark .json-boolean {
+                    color: #569cd6;
+                }
+
+                .vscode-dark .json-null {
+                    color: #b5cea8;
+                    font-style: italic;
+                }
+            </style>
+            <script>
+                function syntaxHighlight(json) {
+                    if (typeof json != "string") {
+                        json = JSON.stringify(json, undefined, 2);
+                    }
+                    json = json.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    return json.replace(
+                        /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+                        function(match) {
+                            var cls = "json-number";
+                            if (/^"/.test(match)) {
+                                if (/:$/.test(match)) {
+                                    cls = "json-key";
+                                } else {
+                                    cls = "json-string";
+                                }
+                            } else if (/true|false/.test(match)) {
+                                cls = "json-boolean";
+                            } else if (/null/.test(match)) {
+                                cls = "json-null";
+                            }
+                            return '<span class="' + cls + '">' + match + '</span>';
+                        });
+                }
+                document.addEventListener("DOMContentLoaded", function() {
+                    document.querySelectorAll(".toggle-json").forEach(function(btn) {
+                        btn.addEventListener("click", function() {
+                            var targetId = btn.getAttribute("data-target");
+                            var row = document.getElementById(targetId);
+                            if (row.style.display === "none") {
+                                row.style.display = "table-row";
+                            } else {
+                                row.style.display = "none";
+                            }
+                        });
+                    });
+                    document.querySelectorAll(".json-content.vscode-dark").forEach(function(pre) {
+                        var raw = pre.textContent;
+                        try {
+                            var json = JSON.parse(raw);
+                            pre.innerHTML = syntaxHighlight(json);
+                        } catch (e) {
+                            // fallback: keep raw
+                        }
+                    });
+                });
+            </script>
+            </div>
+<?php
             }
         );
     }
