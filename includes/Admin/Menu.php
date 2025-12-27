@@ -36,7 +36,7 @@ class Menu
                 echo '<script src="https://cdn.tailwindcss.com"></script>';
                 echo '<script>tailwind.config = {theme: {extend: {colors: {"brand-primary": "#a78bfa"}}}}</script>';
                 echo '<style>.via-brand-primary { --tw-gradient-via-position: 50%!important; --tw-gradient-stops: var(--tw-gradient-from), #2026ed var(--tw-gradient-via-position), var(--tw-gradient-to)!important; z-index: 999; }</style>';
-                echo '<div class="wrap"><div class="max-w-7xl mx-auto py-8 px-6">';
+                echo '<div class="wrap"><div class="max-w-6xl mx-py-8 px-6">';
 
                 // Header like Pages_cv: gradient background, white title and description with icon
                 echo '<div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg shadow-lg p-6 mb-6">';
@@ -57,7 +57,7 @@ class Menu
                 echo '</div>';
                 echo '</div>';
 
-                echo '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">';
+                echo '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">';
 
                 foreach ($manifests as $slug => $manifest) {
                     $menu_slug = 'api-' . $slug;
@@ -103,22 +103,29 @@ class Menu
 
         // Add a submenu page for each manifest discovered
         foreach ($manifests as $slug => $manifest) {
+
             $menu_slug = 'api-' . $slug;
             $display = $manifest['display_name'] ?? $slug;
 
             $callback = null;
             if (!empty($manifest['admin_class'])) {
+                // Si la classe n'existe pas, tenter de charger Page.php dans le plugin enfant
+                if (!class_exists($manifest['admin_class'])) {
+                    // Cas plugin enfant : Page.php est dans le dossier parent de __path
+                    $pageFile = dirname($manifest['__path']) . '/Page.php';
+                    if (file_exists($pageFile)) {
+                        require_once $pageFile;
+                    }
+                }
+                // Charger aussi les autres fichiers du dossier si besoin
                 if (!class_exists($manifest['admin_class']) && !empty($manifest['__path'])) {
-                    // attempt to require all PHP files from the manifest path so class becomes available
                     foreach (glob($manifest['__path'] . '/*.php') as $phpFile) {
                         if (basename($phpFile) === 'Pages.php') {
                             continue;
                         }
-
                         require_once $phpFile;
                     }
                 }
-
                 if (class_exists($manifest['admin_class'])) {
                     $instance = new $manifest['admin_class']();
                     $callback = [$instance, 'render'];
@@ -131,7 +138,7 @@ class Menu
                     $name = esc_html($manifest['display_name'] ?? $manifest['slug']);
                     echo '<script src="https://cdn.tailwindcss.com"></script>';
                     echo '<div class="wrap bg-gray-100 min-h-screen">'
-                        . '<div class="max-w-7xl mx-auto py-8 px-6">'
+                        . '<div class="max-w-6xl py-8 px-6">'
                         . '    <!-- Header -->'
                         . '    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg shadow-lg p-6 mb-8">'
                         . '        <h1 class="text-3xl font-bold text-white">' . $name . '</h1>'
@@ -145,5 +152,59 @@ class Menu
 
             add_submenu_page('api', $display, $display, 'manage_options', $menu_slug, $callback);
         }
+
+        // Sous-menu de diagnostic
+        add_submenu_page(
+            'api',
+            'Diagnostic APIs',
+            'Diagnostic APIs',
+            'manage_options',
+            'api-diagnostic',
+            function () {
+                echo '<div class="wrap"><h1>Diagnostic APIs</h1>';
+                $manifests = $GLOBALS['cv_headless_discovered_apis'] ?? [];
+                if (empty($manifests)) {
+                    echo '<p style="color:red">Aucun manifest détecté.</p>';
+                    echo '</div>';
+                    return;
+                }
+                echo '<table class="widefat"><thead><tr><th>Slug</th><th>admin_class</th><th>Classe chargée</th><th>Page.php</th><th>Manifest trouvé</th><th>Contenu manifest</th></tr></thead><tbody>';
+                foreach ($manifests as $slug => $manifest) {
+                    $adminClass = $manifest['admin_class'] ?? '';
+                    $classOk = $adminClass && class_exists($adminClass) ? '<span style="color:green">OK</span>' : '<span style="color:red">Non</span>';
+                    $pageFile = !empty($manifest['__path']) ? dirname($manifest['__path']) . '/Page.php' : '';
+                    $pageFileOk = $pageFile && file_exists($pageFile) ? '<span style="color:green">' . basename($pageFile) . '</span>' : '<span style="color:red">Absent</span>';
+                    $manifestPhp = $manifestJson = null;
+                    $manifestPhpPath = $manifest['__path'] . '/Pages.php';
+                    $manifestJsonPath = $manifest['__path'] . '/manifest.json';
+                    $manifestFound = '';
+                    $manifestContent = '';
+                    if (file_exists($manifestPhpPath)) {
+                        $manifestFound = '<span style="color:green">Pages.php</span>';
+                        ob_start();
+                        $data = include $manifestPhpPath;
+                        var_dump($data);
+                        $manifestContent = '<pre>' . htmlspecialchars(ob_get_clean()) . '</pre>';
+                    } elseif (file_exists($manifestJsonPath)) {
+                        $manifestFound = '<span style="color:green">manifest.json</span>';
+                        $data = json_decode(file_get_contents($manifestJsonPath), true);
+                        $manifestContent = '<pre>' . htmlspecialchars(var_export($data, true)) . '</pre>';
+                    } else {
+                        $manifestFound = '<span style="color:red">Aucun</span>';
+                        $manifestContent = '';
+                    }
+                    echo '<tr>';
+                    echo '<td>' . esc_html($slug) . '</td>';
+                    echo '<td>' . esc_html($adminClass) . '</td>';
+                    echo '<td>' . $classOk . '</td>';
+                    echo '<td>' . $pageFileOk . '</td>';
+                    echo '<td>' . $manifestFound . '</td>';
+                    echo '<td>' . $manifestContent . '</td>';
+                    echo '</tr>';
+                }
+                echo '</tbody></table>';
+                echo '</div>';
+            }
+        );
     }
 }
