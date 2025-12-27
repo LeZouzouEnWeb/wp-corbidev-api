@@ -129,7 +129,17 @@ class Menu
                 // fallback to a simple renderer using manifest
                 $callback = function () use ($manifest) {
                     $name = esc_html($manifest['display_name'] ?? $manifest['slug']);
-                    echo '<div class="wrap"><h1>' . $name . '</h1><p>Administration générique pour l\'API "' . $name . '".</p></div>';
+                    echo '<script src="https://cdn.tailwindcss.com"></script>';
+                    echo '<div class="wrap bg-gray-100 min-h-screen">'
+                        . '<div class="max-w-7xl mx-auto py-8 px-6">'
+                        . '    <!-- Header -->'
+                        . '    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg shadow-lg p-6 mb-8">'
+                        . '        <h1 class="text-3xl font-bold text-white">' . $name . '</h1>'
+                        . '        <p class="text-blue-100 mt-2">Administration générique pour l\'API "' . $name . '".</p>'
+                        . '   </div>';
+
+                    echo '<p>Pas de page d\'administration spécifique définie pour cette API.</p>';
+                    echo '</div></div>';
                 };
             }
 
