@@ -1,10 +1,10 @@
-# CV Headless API
+# WP Corbidev API
 
 Plugin WordPress pour la gestion modulaire d'un CV avec API REST JSON.
 
 ## 📋 Description
 
-CV Headless API est un plugin WordPress permettant de gérer les informations d'un CV de manière structurée via une interface d'administration et de les exposer via une API REST JSON. Idéal pour créer des CV dynamiques dans des applications headless.
+WP Corbidev API est un plugin WordPress permettant de gérer les informations d'un CV de manière structurée via une interface d'administration et de les exposer via une API REST JSON. Idéal pour créer des CV dynamiques dans des applications headless.
 
 ## ✨ Fonctionnalités
 
@@ -17,8 +17,8 @@ CV Headless API est un plugin WordPress permettant de gérer les informations d'
 ## 📂 Structure du Plugin
 
 ```
-cv-headless-api/
-├── cv-headless-api.php          # Fichier principal du plugin
+wp-corbidev-api/
+├── wp-corbidev-api.php          # Fichier principal du plugin
 ├── includes/
 │   ├── Core/
 │   │   └── Plugin.php           # Initialisation du plugin
@@ -42,7 +42,7 @@ cv-headless-api/
 ## 🚀 Installation
 
 1. Téléchargez le plugin
-2. Placez le dossier `cv-headless-api` dans `/wp-content/plugins/`
+2. Placez le dossier `wp-corbidev-api` dans `/wp-content/plugins/`
 3. Activez le plugin depuis l'administration WordPress
 
 ## ⚙️ Configuration

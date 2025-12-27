@@ -1,70 +1,32 @@
 <?php
+// Enregistrement des routes génériques du plugin
 
-namespace Api;
-
-class Routes
-{
-    public static function register(): void
-    {
-        /*
-         * =====================================================
-         *  API REST NORMALISÉE (recommandée)
-         * =====================================================
-         */
-
-        // GET /cv/v1/contenus
-        register_rest_route('cv/v1', '/contenus', [
-            'methods'  => 'GET',
-            'callback' => [CvController::class, 'getAll'],
-            'permission_callback' => '__return_true',
-        ]);
-
-        // GET /cv/v1/contenus/{module}
-        register_rest_route('cv/v1', '/contenus/(?P<module>[a-z_]+)', [
-            'methods'  => 'GET',
-            'callback' => [CvController::class, 'getModule'],
-            'permission_callback' => '__return_true',
-        ]);
-
-        // GET /cv/v1/contenus/meta
-        register_rest_route('cv/v1', '/contenus/meta', [
-            'methods'  => 'GET',
-            'callback' => [CvController::class, 'getMeta'],
-            'permission_callback' => '__return_true',
-        ]);
-
-        /*
-         * =====================================================
-         *  OPENAPI / SWAGGER
-         * =====================================================
-         */
-
-        // GET /cv/v1/openapi
-        register_rest_route('cv/v1', '/openapi', [
-            'methods'  => 'GET',
-            'callback' => [OpenApi::class, 'generate'],
-            'permission_callback' => '__return_true',
-        ]);
-
-        /*
-         * =====================================================
-         *  ALIAS (ANCIENNES ROUTES — optionnel)
-         * =====================================================
-         *  À garder temporairement pour compatibilité
-         */
-
-        // Ancien : GET /cv/v1/all
-        register_rest_route('cv/v1', '/all', [
-            'methods'  => 'GET',
-            'callback' => [CvController::class, 'getAll'],
-            'permission_callback' => '__return_true',
-        ]);
-
-        // Ancien : GET /cv/v1/module/{module}
-        register_rest_route('cv/v1', '/module/(?P<module>[a-z_]+)', [
-            'methods'  => 'GET',
-            'callback' => [CvController::class, 'getModule'],
-            'permission_callback' => '__return_true',
-        ]);
+add_action('rest_api_init', function () {
+    // S'assurer que la classe OpenApi est chargée
+    if (!class_exists('OpenApi')) {
+        require_once __DIR__ . '/OpenApi.php';
     }
-}
+    register_rest_route('api/v1', '/openapi', [
+        'methods' => 'GET',
+        'callback' => ['OpenApi', 'generate'],
+        'permission_callback' => '__return_true',
+    ]);
+
+    // Route générique pour OpenApiPage (par slug)
+    if (!class_exists('OpenApiPage')) {
+        require_once __DIR__ . '/OpenApiPage.php';
+    }
+    register_rest_route('api/v1', '/openapi-page/(?P<slug>[a-zA-Z0-9_-]+)', [
+        'methods' => 'GET',
+        'callback' => ['OpenApiPage', 'generate'],
+        'permission_callback' => '__return_true',
+        'args' => [
+            'slug' => [
+                'required' => true,
+                'type' => 'string',
+                'description' => 'Slug du module à exposer'
+            ]
+        ]
+    ]);
+    // ... autres routes génériques à ajouter ici
+});
