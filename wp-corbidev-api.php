@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: Headless API
+ * Plugin Name: Corbidev API
  * Description: Gestion d'APIs modulaires avec API REST JSON
  * Version: 1.0.1
  * Author: Éric Corbisier

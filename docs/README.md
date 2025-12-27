@@ -1,4 +1,4 @@
-# docs — CV Headless API (generic plugin)
+# docs — WP Corbidev API (generic plugin)
 
 Ce dossier contient la documentation pour transformer le plugin en plugin générique multi‑API.
 
