@@ -1,7 +1,7 @@
 # 📝 Suivi des tâches – RAG API-Builder & Manifest Admin
 
 ## Objectif global
-
+''
 Créer un système d'API builder versionné, dynamique, administrable, avec conversion des plugins enfants en manifestes stockés en base, gestion CRUD, sécurité JWT, versionning, et interface d'admin avancée.
 
 ---
@@ -11,11 +11,22 @@ Créer un système d'API builder versionné, dynamique, administrable, avec conv
 1. [ ] **Conversion des plugins enfants en manifest**
 
     - [ ] Lister les plugins enfants à convertir
+        - [ ] Recenser tous les plugins enfants existants
+        - [ ] Documenter pour chaque plugin : nom, fonction, structure principale
     - [ ] Définir le format cible du manifest (JSON)
+        - [ ] Analyser la structure de chaque plugin (onglets, champs, règles, etc.)
+        - [ ] Définir la structure JSON cible (ex : modules, onglets, champs, types, validations)
+        - [ ] Lister les champs obligatoires et optionnels du manifest
     - [ ] Développer l'outil d'export/import manifest ↔ base de données
+        - [ ] Écrire un script/procédure pour extraire la config du plugin et générer le manifest JSON
+        - [ ] Permettre l'import d'un manifest JSON en base (création ou mise à jour)
+        - [ ] Prévoir la gestion des versions lors de l'import/export
     - [ ] Stocker chaque manifest en base, versionné
+        - [ ] Sauvegarder le manifest généré en base de données, avec version
+        - [ ] Vérifier la conformité du manifest généré (tests de validation)
+        - [ ] Documenter le process de conversion et de stockage
 
-2. [ ] **Interface d'admin dynamique**
+2. [ ] **Interface d'Admin dynamique**
 
     - [ ] Créer une UI pour lister, ajouter, modifier, supprimer des modèles/API
     - [ ] Permettre l'ajout/édition de modules, onglets, champs (input, textarea, media, listes)
@@ -24,17 +35,17 @@ Créer un système d'API builder versionné, dynamique, administrable, avec conv
 3. [ ] **Gestion CRUD & sécurité**
 
     - [ ] Définir les droits CRUD par module (granularité module dans un 1er temps)
-    - [ ] Intégrer la vérification JWT (clé, permissions CRUD) si corbidev-jwt actif
+    - [ ] Intégrer la vérification JWT (clé, permissions CRU') si corbidev-jwt actif
     - [ ] Adapter la réponse API selon la présence/validité de la clé JWT
 
-4. [ ] **Versionning & validation**
-
-    - [ ] Implémenter le workflow de validation/activation d'un modèle
+4. [ ] **Versionning & validation**'
+'''
+    - [ ] Implémenter le workflow d' validation/activation d'un modèle
         - [ ] Une seule étape de validation avant activation
-        - [ ] Afficher une popup de confirmation avant activation
+        - [ ] Aff'cher une popup de confirmation avant activation
         - [ ] Garder un historique/log des validations/activations (envoi à l'API logs dans un second temps)
         - [ ] Contrôler l'accès à l'activation : seul l'admin peut valider
-        - [ ] Ajouter un contrôle d'accès aux API (version utilisable) selon les utilisateurs
+        - [ ] Ajouter'un contrôle d'accès aux API (version utilisable) selon les utilisateurs
     - [ ] Générer une nouvelle version à chaque modification validée (anti-régression)
     - [ ] Gérer l'obsolescence, la notification de dépréciation, et la suppression conditionnelle
 
@@ -60,7 +71,7 @@ Créer un système d'API builder versionné, dynamique, administrable, avec conv
   - Historique/logs des validations/activations (API logs à terme)
   - Seul l'admin peut activer/valider
   - Contrôle d'accès aux API (version utilisable) selon les utilisateurs
-
+'
 ---
 
 ## Questions / Points à clarifier
