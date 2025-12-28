@@ -28,6 +28,8 @@ class ConfirmationModal
         $description   = $options['description'] ?? '';
         $confirm_label = $options['confirm_label'] ?? __('OK', 'wp-corbidev-api-new');
         $cancel_label  = $options['cancel_label'] ?? __('Annuler', 'wp-corbidev-api-new');
+        $confirm_attr  = $options['confirm_attributes'] ?? '';
+        $cancel_attr   = $options['cancel_attributes'] ?? '';
 
         $styles = self::getStylesForMode($mode);
 
@@ -55,8 +57,8 @@ class ConfirmationModal
 
         // Boutons
         echo '<div class="flex justify-end gap-2 mt-1">';
-        echo '<button type="button" class="px-3 py-1.5 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50" data-modal-cancel="' . esc_attr($id) . '">' . esc_html($cancel_label) . '</button>';
-        echo '<button type="button" class="px-3 py-1.5 text-sm rounded ' . esc_attr($styles['confirm_bg']) . ' text-white hover:opacity-90" data-modal-confirm="' . esc_attr($id) . '">' . esc_html($confirm_label) . '</button>';
+        echo '<button type="button" class="px-3 py-1.5 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50" data-modal-cancel="' . esc_attr($id) . '"' . ($cancel_attr ? ' ' . $cancel_attr : '') . '>' . esc_html($cancel_label) . '</button>';
+        echo '<button type="button" class="px-3 py-1.5 text-sm rounded ' . esc_attr($styles['confirm_bg']) . ' text-white hover:opacity-90" data-modal-confirm="' . esc_attr($id) . '"' . ($confirm_attr ? ' ' . $confirm_attr : '') . '>' . esc_html($confirm_label) . '</button>';
         echo '</div>';
 
         echo '</div>';
@@ -142,10 +144,14 @@ class ConfirmationModal
 
         echo '<script>document.addEventListener("DOMContentLoaded",function(){'
             . 'document.body.addEventListener("click",function(e){var t=e.target;'
-                . 'var targetId=t.getAttribute&&t.getAttribute("data-modal-target");'
-                . 'if(targetId){e.preventDefault();var m=document.getElementById(targetId);if(m){m.classList.remove("hidden");m.classList.add("flex");return;}}'
-                . 'var cancelId=t.getAttribute&&t.getAttribute("data-modal-cancel");'
-                . 'if(cancelId){e.preventDefault();var m2=document.getElementById(cancelId);if(m2){m2.classList.add("hidden");m2.classList.remove("flex");return;}}'
+            . 'if(t.closest){'
+            . 'var opener=t.closest("[data-modal-target]");'
+            . 'if(opener){e.preventDefault();var targetId=opener.getAttribute("data-modal-target");if(targetId){var m=document.getElementById(targetId);if(m){m.classList.remove("hidden");m.classList.add("flex");return;}}}'
+            . 'var canceller=t.closest("[data-modal-cancel]");'
+            . 'if(canceller){e.preventDefault();var cancelId=canceller.getAttribute("data-modal-cancel");if(cancelId){var m2=document.getElementById(cancelId);if(m2){m2.classList.add("hidden");m2.classList.remove("flex");return;}}}'
+            . 'var confirmer=t.closest("[data-modal-confirm]");'
+            . 'if(confirmer){e.preventDefault();var confirmId=confirmer.getAttribute("data-modal-confirm");if(confirmId){var m3=document.getElementById(confirmId);if(m3){m3.classList.add("hidden");m3.classList.remove("flex");}if(window.corbidevModalConfirm&&typeof window.corbidevModalConfirm[confirmId]==="function"){window.corbidevModalConfirm[confirmId]();}return;}}'
+            . '}'
             . '});'
         . '});</script>';
     }

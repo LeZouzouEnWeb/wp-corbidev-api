@@ -155,6 +155,27 @@ class ManifestRepository
         return (bool) $wpdb->get_var($wpdb->prepare("SELECT COUNT(1) FROM {$models_table} WHERE slug = %s", $slug));
     }
 
+    /**
+     * Supprime un modèle et toutes ses versions associées.
+     */
+    public static function delete_model(int $model_id): void
+    {
+        global $wpdb;
+        self::ensure_tables();
+
+        $model_id       = (int) $model_id;
+        $models_table   = self::get_models_table();
+        $versions_table = self::get_versions_table();
+
+        if ($model_id <= 0) {
+            return;
+        }
+
+        // Supprimer d'abord toutes les versions liées puis le modèle.
+        $wpdb->delete($versions_table, ['model_id' => $model_id], ['%d']);
+        $wpdb->delete($models_table, ['id' => $model_id], ['%d']);
+    }
+
     public static function get_models_table(): string
     {
         global $wpdb;

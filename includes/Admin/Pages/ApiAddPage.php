@@ -3,6 +3,8 @@
 namespace CorbiDev\ApiBuilder\Admin\Pages;
 
 use CorbiDev\ApiBuilder\Database\ManifestRepository;
+use CorbiDev\ApiBuilder\Admin\ConfirmationModal;
+use CorbiDev\ApiBuilder\Admin\MessageModal;
 
 class ApiAddPage
 {
@@ -36,11 +38,79 @@ class ApiAddPage
         $expires_value     = $is_edit ? ($version['expires_at'] ?? ($manifest['meta']['expires_at'] ?? '')) : '';
         $permissions       = $manifest['permissions'] ?? ['crud' => ['create', 'read', 'update', 'delete'], 'users' => []];
 
-        $version_major      = '';
+        // Restauration éventuelle d'une saisie précédente après erreur
+        $restored_post = null;
+        $current_user  = get_current_user_id();
+        if ($current_user) {
+            $tmp = get_transient('corbidev_api_builder_form_' . $current_user);
+            if (is_array($tmp) && !empty($tmp['action']) && $tmp['action'] === self::ACTION_CREATE) {
+                $restored_post = $tmp;
+                delete_transient('corbidev_api_builder_form_' . $current_user);
+            }
+        }
+
+        if ($restored_post) {
+            $name_value        = sanitize_text_field(wp_unslash($restored_post['name'] ?? $name_value));
+            if (!$is_edit) {
+                $slug_value = sanitize_title(wp_unslash($restored_post['slug'] ?? $slug_value));
+            }
+            $description_value = sanitize_textarea_field(wp_unslash($restored_post['description'] ?? $description_value));
+
+            if ($is_edit) {
+                if (isset($restored_post['mode'])) {
+                    $mode_value = sanitize_text_field(wp_unslash($restored_post['mode']));
+                }
+                if (isset($restored_post['expires_at'])) {
+                    $expires_value = sanitize_text_field(wp_unslash($restored_post['expires_at']));
+                }
+            } else {
+                if (isset($restored_post['version'])) {
+                    $version_value = sanitize_text_field(wp_unslash($restored_post['version']));
+                }
+            }
+
+            if (!empty($restored_post['permissions_crud']) && is_array($restored_post['permissions_crud'])) {
+                $permissions['crud'] = array_map('sanitize_text_field', $restored_post['permissions_crud']);
+            }
+            if (isset($restored_post['permissions_users'])) {
+                $emails = array_filter(array_map('trim', explode(',', sanitize_text_field(wp_unslash($restored_post['permissions_users'])))));
+                $permissions['users'] = $emails;
+            }
+        }
+
+        // Préparation des champs de version
+        $version_major       = '';
         $version_minor_patch = '';
+        $create_version_major = '1';
+        $create_version_minor = '0.0';
+
         if ($is_edit && preg_match('/^(\d+)\.(\d+)\.(\d+)$/', $version_value, $vm)) {
+            // Mode édition : majeure fixe, mineure/patch éditable
             $version_major       = $vm[1];
             $version_minor_patch = $vm[2] . '.' . $vm[3];
+
+            // Si une saisie précédente a été restaurée, on garde la partie mineure/patch tapée
+            if ($restored_post && isset($restored_post['version_minor_patch'])) {
+                $version_minor_patch = sanitize_text_field(wp_unslash($restored_post['version_minor_patch']));
+            }
+        } else {
+            // Mode création : majeure + mineure/patch séparées
+            if (preg_match('/^(\d+)\.(\d+)\.(\d+)$/', $version_value, $vmc)) {
+                $create_version_major = $vmc[1];
+                $create_version_minor = $vmc[2] . '.' . $vmc[3];
+            }
+
+            if ($restored_post) {
+                if (isset($restored_post['version_major'])) {
+                    $create_version_major = sanitize_text_field(wp_unslash($restored_post['version_major']));
+                }
+                if (isset($restored_post['version_minor_patch'])) {
+                    $create_version_minor = sanitize_text_field(wp_unslash($restored_post['version_minor_patch']));
+                } elseif (isset($restored_post['version']) && preg_match('/^(\d+)\.(\d+)\.(\d+)$/', sanitize_text_field(wp_unslash($restored_post['version'])), $vmr)) {
+                    $create_version_major = $vmr[1];
+                    $create_version_minor = $vmr[2] . '.' . $vmr[3];
+                }
+            }
         }
 
         echo '<div class="p-8">';
@@ -67,6 +137,24 @@ class ApiAddPage
         echo '</div>';
         echo '</div>';
 
+        // Message d'erreur sous le titre principal (via MessageModal)
+        $error_message = '';
+        if (!empty($_GET['error'])) {
+            $error_message = rawurldecode(sanitize_text_field(wp_unslash($_GET['error'])));
+        }
+        if ($error_message !== '') {
+            MessageModal::render(
+                'cv-api-error-banner',
+                $error_message,
+                MessageModal::TYPE_ERREUR,
+                [
+                    'title'       => '',
+                    'dismissible' => true,
+                ]
+            );
+            MessageModal::print_global_assets();
+        }
+
         // Carte formulaire
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="max-w-4xl mx-auto space-y-6 bg-white p-6 rounded-xl shadow">';
         wp_nonce_field(self::ACTION_CREATE);
@@ -76,6 +164,7 @@ class ApiAddPage
             echo '<input type="hidden" name="version_id" value="' . (int) ($version['id'] ?? 0) . '">';
             echo '<input type="hidden" name="original_version" value="' . esc_attr($version_value) . '">';
             echo '<input type="hidden" name="original_slug" value="' . esc_attr($slug_value) . '">';
+            echo '<input type="hidden" name="original_status" value="' . esc_attr($mode_value) . '">';
         } else {
             echo '<input type="hidden" name="mode" value="edition">';
         }
@@ -102,7 +191,15 @@ class ApiAddPage
             echo '<p class="text-xs text-gray-500 mt-1">' . esc_html__('Vous pouvez modifier uniquement la partie mineure/patch (ex : 0.1, 1.3).', 'wp-corbidev-api-new') . '</p>';
             echo '</div>';
         } else {
-            self::render_input('version', __('Version', 'wp-corbidev-api-new'), 'text', $version_value);
+            echo '<div>';
+            echo '<label class="block text-sm font-medium mb-1" for="version_major">' . esc_html__('Version', 'wp-corbidev-api-new') . '</label>';
+            echo '<div class="flex items-center gap-2">';
+            echo '<input type="number" min="0" step="1" id="version_major" name="version_major" class="w-20 border rounded px-3 py-2" value="' . esc_attr($create_version_major) . '">';
+            echo '<span class="text-gray-700">.</span>';
+            echo '<input type="text" id="version_minor_patch" name="version_minor_patch" class="flex-1 border rounded px-3 py-2" value="' . esc_attr($create_version_minor) . '">';
+            echo '</div>';
+            echo '<p class="text-xs text-gray-500 mt-1">' . esc_html__('Version majeure et mineure/patch (ex : 1 et 0.0).', 'wp-corbidev-api-new') . '</p>';
+            echo '</div>';
         }
 
         if ($is_edit) {
@@ -114,6 +211,10 @@ class ApiAddPage
                 'obsolete' => __('Obsolète', 'wp-corbidev-api-new'),
             ];
             foreach ($modes as $value => $label) {
+                // Si l'API est déjà obsolète, ne proposer que "Obsolète"
+                if ($mode_value === 'obsolete' && $value !== 'obsolete') {
+                    continue;
+                }
                 $selected = $mode_value === $value ? ' selected' : '';
                 echo '<option value="' . esc_attr($value) . '"' . $selected . '>' . esc_html($label) . '</option>';
             }
@@ -208,6 +309,74 @@ class ApiAddPage
                 . 'for(var i=0;i<select.options.length;i++){if(select.options[i].value===email){select.options[i].disabled=false;break;}}'
             . '});'
         . '});</script>';
+
+        // Modales de confirmation lorsque l'on passe en mode obsolète / actif (édition uniquement)
+        if ($is_edit) {
+            // Obsolète
+            $obsolete_message = __('Une fois cette API marquée comme obsolète, vous ne pourrez plus revenir en arrière ni modifier sa configuration (hors titres et regex).', 'wp-corbidev-api-new');
+            ConfirmationModal::render(
+                'cv-api-obsolete-modal',
+                __('Passer cette API en obsolète ?', 'wp-corbidev-api-new'),
+                $obsolete_message,
+                ConfirmationModal::MODE_ALERTE,
+                [
+                    'description'   => '<span id="cv-api-obsolete-description"></span>',
+                    'confirm_label' => __('Continuer', 'wp-corbidev-api-new'),
+                    'cancel_label'  => __('Annuler', 'wp-corbidev-api-new'),
+                ]
+            );
+
+            // Active (même message que sur la liste)
+            $activation_message = __('Une fois l’API activée, vous ne pourrez plus modifier ni supprimer les champs existants (hors titres et regex). Vous pourrez uniquement ajouter de nouveaux champs.', 'wp-corbidev-api-new');
+            ConfirmationModal::render(
+                'cv-api-active-modal',
+                __('Activer cette API ?', 'wp-corbidev-api-new'),
+                $activation_message,
+                ConfirmationModal::MODE_ALERTE,
+                [
+                    'description'   => __('Vous êtes sur le point d\'activer cette API depuis l\'écran de modification.', 'wp-corbidev-api-new'),
+                    'confirm_label' => __('Continuer', 'wp-corbidev-api-new'),
+                    'cancel_label'  => __('Annuler', 'wp-corbidev-api-new'),
+                ]
+            );
+
+            ConfirmationModal::print_global_script();
+
+            echo '<script>document.addEventListener("DOMContentLoaded",function(){'
+                . 'var mode=document.getElementById("mode");'
+                . 'var obsoleteModal=document.getElementById("cv-api-obsolete-modal");'
+                . 'var activeModal=document.getElementById("cv-api-active-modal");'
+                . 'if(!mode||!obsoleteModal||!activeModal){return;}'
+                . 'var form=mode.form;'
+                . 'var originalStatusInput=document.querySelector("input[name=\\"original_status\\"]");'
+                . 'var originalStatus=originalStatusInput?originalStatusInput.value:"";'
+                . 'var prev=mode.value;'
+                . 'var confirmedObsolete=false;'
+                . 'var confirmedActive=false;'
+                . 'var confirmObsolete=obsoleteModal.querySelector("[data-modal-confirm=\\"cv-api-obsolete-modal\\"]");'
+                . 'var cancelObsolete=obsoleteModal.querySelector("[data-modal-cancel=\\"cv-api-obsolete-modal\\"]");'
+                . 'var confirmActive=activeModal.querySelector("[data-modal-confirm=\\"cv-api-active-modal\\"]");'
+                . 'var cancelActive=activeModal.querySelector("[data-modal-cancel=\\"cv-api-active-modal\\"]");'
+                . 'var desc=document.getElementById("cv-api-obsolete-description");'
+                . 'if(!confirmObsolete||!cancelObsolete||!confirmActive||!cancelActive){return;}'
+                . 'var openModal=function(m){m.classList.remove("hidden");m.classList.add("flex");};'
+                . 'var closeModal=function(m){m.classList.add("hidden");m.classList.remove("flex");};'
+                . 'mode.addEventListener("change",function(){var newVal=mode.value;'
+                . 'if(newVal===prev){return;}'
+                . 'if(newVal==="obsolete"){if(desc){desc.textContent="' . esc_js(__('Vous êtes sur le point de passer cette API en mode obsolète.', 'wp-corbidev-api-new')) . '";}openModal(obsoleteModal);return;}'
+                . 'if(newVal==="active"){openModal(activeModal);return;}'
+                . 'prev=newVal;'
+                . '});'
+                . 'cancelObsolete.addEventListener("click",function(e){e.preventDefault();closeModal(obsoleteModal);mode.value=prev;mode.dispatchEvent(new Event("change",{bubbles:true}));});'
+                . 'confirmObsolete.addEventListener("click",function(e){e.preventDefault();closeModal(obsoleteModal);prev="obsolete";confirmedObsolete=true;mode.value="obsolete";mode.dispatchEvent(new Event("change",{bubbles:true}));});'
+                . 'cancelActive.addEventListener("click",function(e){e.preventDefault();closeModal(activeModal);mode.value=prev;mode.dispatchEvent(new Event("change",{bubbles:true}));});'
+                . 'confirmActive.addEventListener("click",function(e){e.preventDefault();closeModal(activeModal);prev="active";confirmedActive=true;mode.value="active";mode.dispatchEvent(new Event("change",{bubbles:true}));});'
+                . 'if(form){form.addEventListener("submit",function(e){var current=mode.value;'
+                . 'if(current==="obsolete" && originalStatus!=="obsolete" && !confirmedObsolete){e.preventDefault();if(desc){desc.textContent="' . esc_js(__('Vous êtes sur le point de passer cette API en mode obsolète.', 'wp-corbidev-api-new')) . '";}openModal(obsoleteModal);return;}'
+                . 'if(current==="active" && originalStatus!=="active" && !confirmedActive){e.preventDefault();openModal(activeModal);return;}'
+                . '});}
+                });</script>';
+        }
     }
 
     public static function handle_create(): void
@@ -225,13 +394,13 @@ class ApiAddPage
         $name        = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
         $slug        = sanitize_title(wp_unslash($_POST['slug'] ?? ''));
         $description = sanitize_textarea_field(wp_unslash($_POST['description'] ?? ''));
-        $version     = sanitize_text_field(wp_unslash($_POST['version'] ?? '1.0.0'));
+        $version     = '1.0.0';
         $mode        = $is_edit ? sanitize_text_field(wp_unslash($_POST['mode'] ?? 'edition')) : 'edition';
         $expires_raw = $is_edit ? sanitize_text_field(wp_unslash($_POST['expires_at'] ?? '')) : '';
         $permissions_crud  = array_map('sanitize_text_field', $_POST['permissions_crud'] ?? []);
         $permissions_users = array_filter(array_map('trim', explode(',', sanitize_text_field(wp_unslash($_POST['permissions_users'] ?? '')))));
 
-        // En édition, reconstruire la version à partir de la majeure d'origine et du champ mineur/patch
+        // Construction/édition de la version à partir des champs séparés
         $original_version = '';
         if ($is_edit) {
             $original_version = sanitize_text_field(wp_unslash($_POST['original_version'] ?? ''));
@@ -246,6 +415,23 @@ class ApiAddPage
                 // Si rien n'est saisi, on garde la version d'origine
                 $version = $original_version ?: $version;
             }
+        } else {
+            // Création : utiliser version_major + version_minor_patch
+            $major_input = sanitize_text_field(wp_unslash($_POST['version_major'] ?? ''));
+            $minor_input = sanitize_text_field(wp_unslash($_POST['version_minor_patch'] ?? ''));
+
+            if ($major_input === '') {
+                $major_input = '1';
+            }
+            if ($minor_input === '') {
+                $minor_input = '0.0';
+            }
+
+            if (!preg_match('/^\d+$/', $major_input) || !preg_match('/^(\d+)\.(\d+)$/', $minor_input, $mp_create)) {
+                self::redirect_with_error(__('La version doit être au format X.Y.Z (ex : 1.0.0).', 'wp-corbidev-api-new'));
+            }
+
+            $version = (int) $major_input . '.' . $mp_create[1] . '.' . $mp_create[2];
         }
 
         if (!$name || !$slug) {
@@ -258,17 +444,23 @@ class ApiAddPage
         }
         $new_major = (int) $new_parts[1];
 
+        // En création, si le slug ne contient pas la version majeure (v1, v2, ...),
+        // on le corrige automatiquement au lieu d'afficher une erreur.
+        if (!$is_edit && stripos($slug, 'v' . $new_major) === false) {
+            $slug = sanitize_title($slug . '-v' . $new_major);
+        }
+
         if (!$is_edit && ManifestRepository::slug_exists($slug)) {
             self::redirect_with_error(__('Ce slug existe déjà.', 'wp-corbidev-api-new'));
         }
 
-        // En création, le slug doit contenir la version majeure (v1, v2, ...)
-        if (!$is_edit && stripos($slug, 'v' . $new_major) === false) {
-            self::redirect_with_error(__('Le slug doit contenir la version majeure (ex : mon-api-v1 pour 1.0.0).', 'wp-corbidev-api-new'));
-        }
-
         if ($is_edit) {
-            $original_slug = sanitize_title(wp_unslash($_POST['original_slug'] ?? ''));
+            $original_slug   = sanitize_title(wp_unslash($_POST['original_slug'] ?? ''));
+            $original_status = sanitize_text_field(wp_unslash($_POST['original_status'] ?? ''));
+
+            if ($original_status === 'obsolete' && $mode !== 'obsolete') {
+                self::redirect_with_error(__('Vous ne pouvez pas changer le mode d\'une API déjà obsolète.', 'wp-corbidev-api-new'));
+            }
 
             // Interdiction de changer la base de version (majeur)
             if ($original_version && preg_match('/^(\d+)\.(\d+)\.(\d+)$/', $original_version, $orig_parts)) {
@@ -432,13 +624,30 @@ class ApiAddPage
 
     private static function redirect_with_error(string $message): void
     {
-        wp_safe_redirect(add_query_arg(
-            [
-                'page'  => 'corbidev-api-builder',
-                'error' => rawurlencode($message),
-            ],
-            admin_url('admin.php')
-        ));
+        // Par défaut, retour à la liste, mais si on vient du formulaire
+        // de création/édition, on renvoie vers cet écran pour éviter de
+        // refaire tout le parcours.
+        $page   = 'corbidev-api-builder';
+        $args   = [];
+
+        if (!empty($_POST['action']) && $_POST['action'] === self::ACTION_CREATE) {
+            $page = 'corbidev-api-builder-add';
+
+            // Sauvegarde temporaire de la saisie pour la restaurer après l'erreur
+            $current_user = get_current_user_id();
+            if ($current_user) {
+                set_transient('corbidev_api_builder_form_' . $current_user, wp_unslash($_POST), 5 * MINUTE_IN_SECONDS);
+            }
+
+            if (!empty($_POST['model_id'])) {
+                $args['model_id'] = (int) $_POST['model_id'];
+            }
+        }
+
+        $args['page']  = $page;
+        $args['error'] = rawurlencode($message);
+
+        wp_safe_redirect(add_query_arg($args, admin_url('admin.php')));
         exit;
     }
 }

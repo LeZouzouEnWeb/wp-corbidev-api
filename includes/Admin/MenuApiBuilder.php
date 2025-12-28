@@ -10,12 +10,14 @@ class MenuApiBuilder
     private const MENU_SLUG    = 'corbidev-api-builder';
     private const ADD_SLUG     = 'corbidev-api-builder-add';
     private const ACTION_CREATE = 'corbidev_api_builder_create';
+    private const ACTION_DELETE = 'corbidev_api_builder_delete';
 
     public static function register(): void
     {
         add_action('admin_menu', [self::class, 'add_menu']);
         add_action('admin_head', [self::class, 'print_tailwind']);
         add_action('admin_post_' . self::ACTION_CREATE, [ApiAddPage::class, 'handle_create']);
+        add_action('admin_post_' . self::ACTION_DELETE, [ApiListPage::class, 'handle_delete']);
         add_action('admin_init', [ManifestRepository::class, 'ensure_tables']);
     }
 
