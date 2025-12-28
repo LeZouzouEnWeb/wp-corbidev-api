@@ -2,6 +2,7 @@
     "name": "Nom du plugin/API",
     "description": "Description fonctionnelle",
     "version": "1.0.0",
+    "mode": "edition",
     "modules": [
         {
             "name": "Nom du module",
@@ -37,11 +38,21 @@
         }
     ],
     "permissions": {
-        "crud": [
-            "create",
-            "read",
-            "update",
-            "delete"
+    "crud": [
+        {
+            "create": false
+        },
+        {
+            "read": true
+        },
+        {
+            "update": false
+        },
+        {
+            "delete": false
+        }
+    ],
+    "users": [
         ]
     },
     "meta": {

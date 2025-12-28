@@ -2,6 +2,7 @@
     "name": "API Modèle",
     "description": "Modèle de plugin enfant pour ajouter une API au socle générique wp-corbidev-api (squelette de manifest)",
     "version": "1.0.0",
+    "mode": "edition",
     "modules": [
         {
             "name": "modele",
@@ -24,10 +25,20 @@
     ],
     "permissions": {
         "crud": [
-            "create",
-            "read",
-            "update",
-            "delete"
+            {
+                "create": false
+            },
+            {
+                "read": true
+            },
+            {
+                "update": false
+            },
+            {
+                "delete": false
+            }
+        ],
+        "users": [
         ]
     },
     "meta": {

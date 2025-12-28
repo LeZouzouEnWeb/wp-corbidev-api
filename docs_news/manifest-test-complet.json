@@ -2,6 +2,7 @@
     "name": "API Test",
     "description": "API de test pour le socle wp-corbidev-api (exemple minimal)",
     "version": "1.0.0",
+    "mode": "edition",
     "modules": [
         {
             "name": "test",
@@ -24,10 +25,20 @@
     ],
     "permissions": {
         "crud": [
-            "create",
-            "read",
-            "update",
-            "delete"
+            {
+                "create": false
+            },
+            {
+                "read": true
+            },
+            {
+                "update": false
+            },
+            {
+                "delete": false
+            }
+        ],
+        "users": [
         ]
     },
     "meta": {

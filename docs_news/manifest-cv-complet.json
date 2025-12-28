@@ -2,6 +2,7 @@
     "name": "API CV",
     "description": "API pour la gestion d'un CV complet (identité, contact, savoir-être, autres informations)",
     "version": "1.0.0",
+    "mode": "active",
     "modules": [
         {
             "name": "cv",
@@ -172,10 +173,12 @@
     ],
     "permissions": {
         "crud": [
-            "create",
-            "read",
-            "update",
-            "delete"
+            {"create" : false},
+            {"read" : true},
+            {"update" : false},
+            {"delete" : false}
+        ],
+        "users": [
         ]
     },
     "meta": {

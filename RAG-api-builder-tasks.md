@@ -8,7 +8,7 @@ Modifier l'API wp-corbidev-api pour créer un système d'API builder versionné,
 
 ## Tâches principales
 
-1. [ ] **Conversion des plugins enfants en manifest**
+1. [x] **Conversion des plugins enfants en manifest**
 
    - [x] Lister les plugins enfants à convertir
    - [x] Recenser tous les plugins enfants existants
@@ -38,25 +38,25 @@ Modifier l'API wp-corbidev-api pour créer un système d'API builder versionné,
 
 2. [ ] **Interface d'Admin dynamique**
 
-   - [ ] Créer un outil de conversion automatique
-   - [ ] Tester la conversion sur chaque plugin enfant
-   - [ ] Valider la conformité des manifests générés
-   - [ ] Documenter le processus de conversion
-   - [ ] Intégrer la gestion des manifests dans l'API builder
-   - [ ] Permettre le chargement dynamique des manifests en base
+    - [x] Créer une UI pour lister, ajouter, modifier, supprimer des modèles/API (tableau, actions, filtres, bouton importer présents)
+    - [ ] Permettre l'ajout/édition de modules, onglets, champs (input, textarea, media, listes)
+    - [ ] Gérer les types de listes (input select, textarea multi-ligne, choix du mode via case à cocher)
 
-   - [ ] Développer l'outil d'export/import manifest ↔ base de données
-     - [ ] Écrire un script/procédure pour extraire la config du plugin et générer le manifest JSON
-     - [ ] Permettre l'import d'un manifest JSON en base (création ou mise à jour)
-     - [ ] Prévoir la gestion des versions lors de l'import/export
-   - [ ] Stocker chaque manifest en base, versionné
-     - [ ] Sauvegarder le manifest généré en base de données, avec version
-     - [ ] Vérifier la conformité du manifest généré (tests de validation)
-     - [ ] Documenter le process de conversion et de stockage
+    - [ ] Créer un outil de conversion automatique
+    - [ ] Tester la conversion sur chaque plugin enfant
+    - [ ] Valider la conformité des manifests générés
+    - [ ] Documenter le processus de conversion
+    - [ ] Intégrer la gestion des manifests dans l'API builder
+    - [ ] Permettre le chargement dynamique des manifests en base
 
-   - [ ] Créer une UI pour lister, ajouter, modifier, supprimer des modèles/API
-   - [ ] Permettre l'ajout/édition de modules, onglets, champs (input, textarea, media, listes)
-   - [ ] Gérer les types de listes (input select, textarea multi-ligne, choix du mode via case à cocher)
+    - [ ] Développer l'outil d'export/import manifest ↔ base de données
+       - [ ] Écrire un script/procédure pour extraire la config du plugin et générer le manifest JSON
+       - [ ] Permettre l'import d'un manifest JSON en base (création ou mise à jour)
+       - [ ] Prévoir la gestion des versions lors de l'import/export
+    - [ ] Stocker chaque manifest en base, versionné
+       - [ ] Sauvegarder le manifest généré en base de données, avec version
+       - [ ] Vérifier la conformité du manifest généré (tests de validation)
+       - [ ] Documenter le process de conversion et de stockage
 
 3. [ ] **Gestion CRUD & sécurité**
 
