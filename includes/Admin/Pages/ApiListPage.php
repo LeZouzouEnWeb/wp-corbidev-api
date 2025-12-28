@@ -3,6 +3,7 @@
 namespace CorbiDev\ApiBuilder\Admin\Pages;
 
 use CorbiDev\ApiBuilder\Database\ManifestRepository;
+use CorbiDev\ApiBuilder\Admin\ConfirmationModal;
 
 class ApiListPage
 {
@@ -87,7 +88,7 @@ class ApiListPage
                 echo '<a href="' . $edit_url . '" class="text-blue-600 hover:text-blue-800">' . esc_html__('Modification rapide', 'wp-corbidev-api-new') . '</a>';
                 echo '<span class="text-gray-300">|</span>';
                 if ($status === 'edition') {
-                    echo '<button type="button" class="text-green-700 hover:text-green-900 cv-api-activate" data-api-name="' . esc_attr($model['name']) . '">' . esc_html__('Activer', 'wp-corbidev-api-new') . '</button>';
+                    echo '<button type="button" class="text-green-700 hover:text-green-900 cv-api-activate" data-modal-target="cv-api-activate-modal" data-api-name="' . esc_attr($model['name']) . '">' . esc_html__('Activer', 'wp-corbidev-api-new') . '</button>';
                 } else {
                     echo '<a href="' . $edit_url . '" class="text-blue-600 hover:text-blue-800">' . esc_html__('Modifier', 'wp-corbidev-api-new') . '</a>';
                 }
@@ -115,42 +116,29 @@ class ApiListPage
 
         echo '</tbody></table></div>';
 
-        // Modal pour l'alerte d'activation
-        echo '<div id="cv-api-activate-modal" class="fixed inset-0 z-50 hidden items-start justify-center bg-black/40 pt-24">';
-        echo '<div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 p-6 border-t-4 border-amber-400">';
-        echo '<div class="flex items-start gap-3 mb-3">';
-        echo '<div class="flex-shrink-0 flex items-center justify-center pt-1">';
-        echo '<span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-amber-400 shadow-lg border-2 border-amber-500 align-middle">'
-            . '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#f59e42"/><path d="M12 7v5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16" r="1.3" fill="#fff"/></svg>'
-            . '</span>';
-        echo '</div>';
-        echo '<div class="flex-1 flex flex-col items-center">';
-        echo '<h2 class="text-lg font-semibold text-gray-900 text-center">' . esc_html__('Activer cette API ?', 'wp-corbidev-api-new') . '</h2>';
-        echo '<p class="text-sm text-gray-700 mt-1 text-center" id="cv-api-activate-message"></p>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-4">';
-        echo esc_html__('Une fois l’API activée, vous ne pourrez plus modifier ni supprimer les champs existants (hors titres et regex). Vous pourrez uniquement ajouter de nouveaux champs.', 'wp-corbidev-api-new');
-        echo '</div>';
-        echo '<div class="flex justify-end gap-2 mt-1">';
-        echo '<button type="button" id="cv-api-activate-cancel" class="px-3 py-1.5 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50">' . esc_html__('Annuler', 'wp-corbidev-api-new') . '</button>';
-        echo '<button type="button" id="cv-api-activate-confirm" class="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">' . esc_html__('OK', 'wp-corbidev-api-new') . '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        // Modal d'activation basé sur ConfirmationModal
+        $activation_message = __('Une fois l’API activée, vous ne pourrez plus modifier ni supprimer les champs existants (hors titres et regex). Vous pourrez uniquement ajouter de nouveaux champs.', 'wp-corbidev-api-new');
+        $activation_desc    = __('Vous êtes sur le point d\'activer cette API.', 'wp-corbidev-api-new');
+        ConfirmationModal::render(
+            'cv-api-activate-modal',
+            __('Activer cette API ?', 'wp-corbidev-api-new'),
+            $activation_message,
+            ConfirmationModal::MODE_ALERTE,
+            [
+                'description'   => '<span id="cv-api-activate-message"></span>',
+                'confirm_label' => __('OK', 'wp-corbidev-api-new'),
+                'cancel_label'  => __('Annuler', 'wp-corbidev-api-new'),
+            ]
+        );
 
-        // JS pour afficher le modal d'alerte lors du clic sur "Activer"
+        ConfirmationModal::print_global_script();
+
+        // JS pour injecter le nom de l'API dans le message
         echo '<script>document.addEventListener("DOMContentLoaded",function(){'
             . 'var buttons=document.querySelectorAll(".cv-api-activate");'
-            . 'var modal=document.getElementById("cv-api-activate-modal");'
             . 'var msg=document.getElementById("cv-api-activate-message");'
-            . 'var btnCancel=document.getElementById("cv-api-activate-cancel");'
-            . 'var btnConfirm=document.getElementById("cv-api-activate-confirm");'
-            . 'if(!buttons.length||!modal||!msg||!btnCancel||!btnConfirm){return;}'
-            . 'buttons.forEach(function(b){b.addEventListener("click",function(e){e.preventDefault();var name=b.getAttribute("data-api-name")||"";msg.textContent="' . esc_js(__('Vous êtes sur le point d\'activer cette API :', 'wp-corbidev-api-new')) . ' " + name + ".";modal.classList.remove("hidden");modal.classList.add("flex");});});'
-            . 'var close=function(){modal.classList.add("hidden");modal.classList.remove("flex");};'
-            . 'btnCancel.addEventListener("click",function(e){e.preventDefault();close();});'
-            . 'btnConfirm.addEventListener("click",function(e){e.preventDefault();close();});'
+            . 'if(!buttons.length||!msg){return;}'
+            . 'buttons.forEach(function(b){b.addEventListener("click",function(){var name=b.getAttribute("data-api-name")||"";msg.textContent="' . esc_js(__('Vous êtes sur le point d\'activer cette API :', 'wp-corbidev-api-new')) . ' " + name + ".";});});'
             . '});</script>';
 
         echo '</div>';
