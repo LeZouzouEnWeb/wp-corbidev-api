@@ -1,0 +1,53 @@
+{
+    "name": "Nom du plugin/API",
+    "description": "Description fonctionnelle",
+    "version": "1.0.0",
+    "modules": [
+        {
+            "name": "Nom du module",
+            "tabs": [
+                {
+                    "name": "Nom de l'onglet",
+                    "fields": [
+                        {
+                            "key": "identifiant_du_champ",
+                            "label": "Label affiché",
+                            "type": "input|textarea|select|media|list",
+                            "options": [
+                                "option1",
+                                "option2"
+                            ],
+                            "mode": "toggle", // pour les listes : permet de choisir entre dynamique ou textarea
+                            "modes": [
+                                "input",
+                                "textarea",
+                                "dynamic"
+                            ],
+                            "placeholder": "Exemple de valeur",
+                            "validation": {
+                                "required": true,
+                                "minLength": 2,
+                                "maxLength": 255,
+                                "pattern": "regex"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "permissions": {
+        "crud": [
+            "create",
+            "read",
+            "update",
+            "delete"
+        ]
+    },
+    "meta": {
+        "created_at": "2025-12-28T12:00:00Z",
+        "updated_at": "2025-12-28T12:00:00Z",
+        "deprecated": false,
+        "expires_at": null
+    }
+}

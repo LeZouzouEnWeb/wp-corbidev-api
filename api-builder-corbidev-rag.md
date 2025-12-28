@@ -4,13 +4,17 @@ Projet : API CV / API Builder CorbiDev
 Auteur : Eric Corbisier
 
 ## Vision
+
 API builder dynamique, versionne, securise, admin WordPress.
 
 ## Concepts
+
 Model, Version, Module, Field, Policy, Runtime.
 
 ## Tables
+
 wp_api_models
+
 - id
 - slug
 - name
@@ -19,6 +23,7 @@ wp_api_models
 - created_at
 
 wp_api_model_versions
+
 - id
 - model_id
 - version
@@ -28,6 +33,7 @@ wp_api_model_versions
 - created_at
 
 wp_api_runtime_data
+
 - id
 - model_id
 - version_id
@@ -37,6 +43,7 @@ wp_api_runtime_data
 - updated_at
 
 wp_api_keys
+
 - id
 - key_hash
 - permissions_json
@@ -44,10 +51,12 @@ wp_api_keys
 - created_at
 
 ## Regles
+
 - Version active immuable
 - Toute modification cree une nouvelle version
 - Version obsolete avec date de fin
 - Suppression uniquement si expiree
 
 ## Reponse API
+
 status, title, message, data, version, deprecated, expires_at
