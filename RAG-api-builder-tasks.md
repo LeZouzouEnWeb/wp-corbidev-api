@@ -34,7 +34,7 @@ Modifier l'API wp-corbidev-api pour créer un système d'API builder versionné,
      - [x] Analyser la structure de chaque plugin (onglets, champs, règles, etc.)
      - [x] Définir la structure JSON cible (ex : modules, onglets, champs, types, validations)
      - [x] Lister les champs obligatoires et optionnels du manifest
-     - [ ] Rédiger un exemple de manifest JSON pour un plugin enfant type
+     - [x] Rédiger un exemple de manifest JSON pour un plugin enfant type
 
 2. [ ] **Interface d'Admin dynamique**
 
