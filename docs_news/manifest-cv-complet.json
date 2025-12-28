@@ -1,0 +1,187 @@
+{
+    "name": "API CV",
+    "description": "API pour la gestion d'un CV complet (identité, contact, savoir-être, autres informations)",
+    "version": "1.0.0",
+    "modules": [
+        {
+            "name": "cv",
+            "tabs": [
+                {
+                    "name": "Identité",
+                    "fields": [
+                        {
+                            "key": "job_title",
+                            "label": "Poste",
+                            "type": "input",
+                            "validation": {
+                                "required": true
+                            }
+                        },
+                        {
+                            "key": "first_name",
+                            "label": "Prénom",
+                            "type": "input",
+                            "validation": {
+                                "required": true
+                            }
+                        },
+                        {
+                            "key": "last_name",
+                            "label": "Nom",
+                            "type": "input",
+                            "validation": {
+                                "required": true
+                            }
+                        },
+                        {
+                            "key": "birth_date",
+                            "label": "Date de naissance",
+                            "type": "input"
+                        },
+                        {
+                            "key": "has_driving_license",
+                            "label": "Permis de conduire",
+                            "type": "checkbox"
+                        },
+                        {
+                            "key": "driving_licenses",
+                            "label": "Types de permis",
+                            "type": "select",
+                            "options": [
+                                "AM",
+                                "A1",
+                                "A2",
+                                "A",
+                                "B",
+                                "BE",
+                                "C",
+                                "CE",
+                                "D",
+                                "DE"
+                            ]
+                        },
+                        {
+                            "key": "summary",
+                            "label": "Résumé",
+                            "type": "textarea"
+                        },
+                        {
+                            "key": "photo_id",
+                            "label": "Photo",
+                            "type": "media"
+                        },
+                        {
+                            "key": "logo_id",
+                            "label": "Logo",
+                            "type": "media"
+                        },
+                        {
+                            "key": "icon_id",
+                            "label": "Icône",
+                            "type": "media"
+                        }
+                    ]
+                },
+                {
+                    "name": "Contact",
+                    "fields": [
+                        {
+                            "key": "street",
+                            "label": "Adresse",
+                            "type": "input"
+                        },
+                        {
+                            "key": "complement",
+                            "label": "Complément",
+                            "type": "input"
+                        },
+                        {
+                            "key": "postal_code",
+                            "label": "Code postal",
+                            "type": "input"
+                        },
+                        {
+                            "key": "city",
+                            "label": "Ville",
+                            "type": "input"
+                        },
+                        {
+                            "key": "phone",
+                            "label": "Téléphone",
+                            "type": "input"
+                        },
+                        {
+                            "key": "phone2",
+                            "label": "Téléphone secondaire",
+                            "type": "input"
+                        },
+                        {
+                            "key": "email",
+                            "label": "Email",
+                            "type": "input"
+                        },
+                        {
+                            "key": "websites",
+                            "label": "Sites web",
+                            "type": "list",
+                            "mode": "dynamic",
+                            "placeholder": "https://..."
+                        }
+                    ]
+                },
+                {
+                    "name": "Savoir-être",
+                    "fields": [
+                        {
+                            "key": "values",
+                            "label": "Qualités humaines",
+                            "type": "list",
+                            "mode": "toggle",
+                            "modes": [
+                                "dynamic",
+                                "textarea"
+                            ],
+                            "placeholder": "Ex: Travail d'équipe"
+                        }
+                    ]
+                },
+                {
+                    "name": "Autres informations",
+                    "fields": [
+                        {
+                            "key": "modules",
+                            "label": "Modules",
+                            "type": "object_list",
+                            "fields": [
+                                {
+                                    "key": "title",
+                                    "label": "Titre",
+                                    "type": "input"
+                                },
+                                {
+                                    "key": "content",
+                                    "label": "Contenu",
+                                    "type": "textarea"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "permissions": {
+        "crud": [
+            "create",
+            "read",
+            "update",
+            "delete"
+        ]
+    },
+    "meta": {
+        "created_at": "2025-12-28T12:00:00Z",
+        "updated_at": "2025-12-28T12:00:00Z",
+        "deprecated": false,
+        "expires_at": null
+    }
+}
