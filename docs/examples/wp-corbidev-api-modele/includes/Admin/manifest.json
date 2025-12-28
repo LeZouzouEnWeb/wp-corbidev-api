@@ -1,0 +1,7 @@
+{
+  "slug": "modele",
+  "title": "API Modèle",
+  "description": "Modèle d'API pour extension via plugin enfant.",
+  "version": "1.0.0",
+  "admin_class": "Admin\\Page\\ModelePage"
+}

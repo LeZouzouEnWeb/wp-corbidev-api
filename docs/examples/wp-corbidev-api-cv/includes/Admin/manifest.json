@@ -1,0 +1,57 @@
+{
+  "slug": "cv",
+  "display_name": "CV",
+  "modules": [
+    "identity",
+    "experience",
+    "education"
+  ],
+  "admin_class": "Admin\\Page\\CvPage",
+  "api_contract": "openapi.json",
+  "name": "API CV Corbisier",
+  "description": "Gestion de CV modulaire avec API REST JSON",
+  "routes": [
+    {
+      "namespace": "cv/v1",
+      "route": "/",
+      "methods": "GET",
+      "callback": "CvController@getAll",
+      "permission_callback": "__return_true"
+    },
+    {
+      "namespace": "cv/v1",
+      "route": "/contenus",
+      "methods": "GET",
+      "callback": "CvController@getAll",
+      "permission_callback": "__return_true"
+    },
+    {
+      "namespace": "cv/v1",
+      "route": "/contenus/meta",
+      "methods": "GET",
+      "callback": "CvController@getMeta",
+      "permission_callback": "__return_true"
+    },
+    {
+      "namespace": "cv/v1",
+      "route": "/contenus/(?P<module>[a-z_]+)",
+      "methods": "GET",
+      "callback": "CvController@getModule",
+      "permission_callback": "__return_true"
+    },
+    {
+      "namespace": "cv/v1",
+      "route": "/openapi",
+      "methods": "GET",
+      "callback": "OpenApi@generate",
+      "permission_callback": "__return_true"
+    },
+    {
+      "namespace": "cv/v1",
+      "route": "/status",
+      "methods": "GET",
+      "callback": "CvController@getStatus",
+      "permission_callback": "__return_true"
+    }
+  ]
+}
