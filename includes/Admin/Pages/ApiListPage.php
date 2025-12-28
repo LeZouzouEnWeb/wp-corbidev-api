@@ -168,14 +168,34 @@ class ApiListPage
 
         // JS pour injecter le nom dans la modale d'activation et rediriger sur confirmation de suppression
         $delete_base_url = esc_js(admin_url('admin-post.php?action=corbidev_api_builder_delete&_wpnonce=' . wp_create_nonce('corbidev_api_builder_delete')));
-        echo '<script>document.addEventListener("DOMContentLoaded",function(){'
-            . 'var buttons=document.querySelectorAll(".cv-api-activate");'
-            . 'var msg=document.getElementById("cv-api-activate-message");'
-            . 'if(buttons.length&&msg){buttons.forEach(function(b){b.addEventListener("click",function(){var name=b.getAttribute("data-api-name")||"";msg.textContent="' . esc_js(__('Vous êtes sur le point d\'activer cette API :', 'wp-corbidev-api-new')) . ' " + name + ".";});});}'
-            . 'var deleteConfirm=document.querySelector("[data-modal-confirm=\\"cv-api-delete-modal\\"]");'
-            . 'if(deleteConfirm){deleteConfirm.addEventListener("click",function(){var idField=document.getElementById("cv-api-delete-id");if(!idField||!idField.value){return;}window.location="' . $delete_base_url . '&model_id="+encodeURIComponent(idField.value);});}'
-            . '});</script>';
-
+?>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var buttons = document.querySelectorAll(".cv-api-activate");
+    var msg = document.getElementById("cv-api-activate-message");
+    if (buttons.length && msg) {
+        buttons.forEach(function(b) {
+            b.addEventListener("click", function() {
+                var name = b.getAttribute("data-api-name") || "";
+                msg.textContent =
+                    "' . esc_js(__('Vous êtes sur le point d\'activer cette API :', 'wp-corbidev-api-new')) . ' " +
+                    name + ".";
+            });
+        });
+    }
+    var deleteConfirm = document.querySelector("[data-modal-confirm='cv - api - delete - modal']");
+    if (deleteConfirm) {
+        deleteConfirm.addEventListener("click", function() {
+            var idField = document.getElementById("cv-api-delete-id");
+            if (!idField || !idField.value) {
+                return;
+            }
+            window.location = "' . $delete_base_url . '&model_id=" + encodeURIComponent(idField.value);
+        });
+    }
+});
+</script>'
+<?php
         echo '</div>';
     }
 

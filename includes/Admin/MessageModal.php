@@ -67,7 +67,7 @@ class MessageModal
                 return [
                     'bg'    => 'bg-emerald-50',
                     'text'  => 'text-emerald-800',
-                    'border'=> 'border border-emerald-400',
+                    'border' => 'border border-emerald-400',
                     'close' => 'text-emerald-500 hover:text-emerald-700',
                 ];
 
@@ -75,7 +75,7 @@ class MessageModal
                 return [
                     'bg'    => 'bg-amber-50',
                     'text'  => 'text-amber-800',
-                    'border'=> 'border border-amber-400',
+                    'border' => 'border border-amber-400',
                     'close' => 'text-amber-500 hover:text-amber-700',
                 ];
 
@@ -83,7 +83,7 @@ class MessageModal
                 return [
                     'bg'    => 'bg-red-100',
                     'text'  => 'text-red-800',
-                    'border'=> 'border border-red-500',
+                    'border' => 'border border-red-500',
                     'close' => 'text-red-500 hover:text-red-700',
                 ];
 
@@ -92,7 +92,7 @@ class MessageModal
                 return [
                     'bg'    => 'bg-blue-50',
                     'text'  => 'text-blue-800',
-                    'border'=> 'border border-blue-400',
+                    'border' => 'border border-blue-400',
                     'close' => 'text-blue-500 hover:text-blue-700',
                 ];
         }
@@ -111,17 +111,50 @@ class MessageModal
         $printed = true;
 
         // Styles simples pour la transition en fondu / léger slide.
-        echo '<style>.cv-message-banner{opacity:1;transform:translateY(0);transition:opacity .3s ease-out,transform .3s ease-out;}'
-            . '.cv-message-banner.cv-message-hide{opacity:0;transform:translateY(-4px);}</style>';
+?>
+        <style>
+            .cv-message-banner {
+                opacity: 1;
+                transform: translateY(0);
+                transition: opacity .3s ease-out, transform .3s ease-out;
+            }
 
+            .cv-message-banner.cv-message-hide {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+        </style>
+        <?php
         // JS pour gérer la fermeture douce (y compris clic sur l'icône SVG interne).
-        echo '<script>document.addEventListener("DOMContentLoaded",function(){'
-            . 'document.body.addEventListener("click",function(e){var t=e.target;if(!t){return;}'
-                . 'var btn=t.closest?t.closest("[data-message-dismiss]"):null;if(!btn){return;}'
-                . 'var id=btn.getAttribute("data-message-dismiss");if(!id){return;}'
-                . 'var b=document.getElementById(id);if(!b){return;}'
-                . 'b.classList.add("cv-message-hide");setTimeout(function(){if(b&&b.parentNode){b.parentNode.removeChild(b);}},300);'
-            . '});'
-            . '});</script>';
+        ?>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                document.body.addEventListener("click", function(e) {
+                    var t = e.target;
+                    if (!t) {
+                        return;
+                    }
+                    var btn = t.closest ? t.closest("[data-message-dismiss]") : null;
+                    if (!btn) {
+                        return;
+                    }
+                    var id = btn.getAttribute("data-message-dismiss");
+                    if (!id) {
+                        return;
+                    }
+                    var b = document.getElementById(id);
+                    if (!b) {
+                        return;
+                    }
+                    b.classList.add("cv-message-hide");
+                    setTimeout(function() {
+                        if (b && b.parentNode) {
+                            b.parentNode.removeChild(b);
+                        }
+                    }, 300);
+                });
+            });
+        </script>
+<?php
     }
 }
