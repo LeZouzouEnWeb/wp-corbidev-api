@@ -1,7 +1,7 @@
 # 📝 Suivi des tâches – RAG API-Builder & Manifest Admin
 
 ## Objectif global
-''
+
 Créer un système d'API builder versionné, dynamique, administrable, avec conversion des plugins enfants en manifestes stockés en base, gestion CRUD, sécurité JWT, versionning, et interface d'admin avancée.
 
 ---
