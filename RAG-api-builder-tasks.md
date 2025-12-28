@@ -8,44 +8,44 @@ Créer un système d'API builder versionné, dynamique, administrable, avec conv
 
 ## Tâches principales
 
-- [ ] **Conversion des plugins enfants en manifest**
+1. [ ] **Conversion des plugins enfants en manifest**
 
-  - [ ] Lister les plugins enfants à convertir
-  - [ ] Définir le format cible du manifest (JSON)
-  - [ ] Développer l'outil d'export/import manifest ↔ base de données
-  - [ ] Stocker chaque manifest en base, versionné
+    - [ ] Lister les plugins enfants à convertir
+    - [ ] Définir le format cible du manifest (JSON)
+    - [ ] Développer l'outil d'export/import manifest ↔ base de données
+    - [ ] Stocker chaque manifest en base, versionné
 
-- [ ] **Interface d'admin dynamique**
+2. [ ] **Interface d'admin dynamique**
 
-  - [ ] Créer une UI pour lister, ajouter, modifier, supprimer des modèles/API
-  - [ ] Permettre l'ajout/édition de modules, onglets, champs (input, textarea, media, listes)
-  - [ ] Gérer les types de listes (input select, textarea multi-ligne, choix du mode via case à cocher)
+    - [ ] Créer une UI pour lister, ajouter, modifier, supprimer des modèles/API
+    - [ ] Permettre l'ajout/édition de modules, onglets, champs (input, textarea, media, listes)
+    - [ ] Gérer les types de listes (input select, textarea multi-ligne, choix du mode via case à cocher)
 
-- [ ] **Gestion CRUD & sécurité**
+3. [ ] **Gestion CRUD & sécurité**
 
-  - [ ] Définir les droits CRUD par module (granularité module dans un 1er temps)
-  - [ ] Intégrer la vérification JWT (clé, permissions CRUD) si corbidev-jwt actif
-  - [ ] Adapter la réponse API selon la présence/validité de la clé JWT
+    - [ ] Définir les droits CRUD par module (granularité module dans un 1er temps)
+    - [ ] Intégrer la vérification JWT (clé, permissions CRUD) si corbidev-jwt actif
+    - [ ] Adapter la réponse API selon la présence/validité de la clé JWT
 
-- [ ] **Versionning & validation**
+4. [ ] **Versionning & validation**
 
-  - [ ] Implémenter le workflow de validation/activation d'un modèle
-    - [ ] Une seule étape de validation avant activation
-    - [ ] Afficher une popup de confirmation avant activation
-    - [ ] Garder un historique/log des validations/activations (envoi à l'API logs dans un second temps)
-    - [ ] Contrôler l'accès à l'activation : seul l'admin peut valider
-    - [ ] Ajouter un contrôle d'accès aux API (version utilisable) selon les utilisateurs
-  - [ ] Générer une nouvelle version à chaque modification validée (anti-régression)
-  - [ ] Gérer l'obsolescence, la notification de dépréciation, et la suppression conditionnelle
+    - [ ] Implémenter le workflow de validation/activation d'un modèle
+        - [ ] Une seule étape de validation avant activation
+        - [ ] Afficher une popup de confirmation avant activation
+        - [ ] Garder un historique/log des validations/activations (envoi à l'API logs dans un second temps)
+        - [ ] Contrôler l'accès à l'activation : seul l'admin peut valider
+        - [ ] Ajouter un contrôle d'accès aux API (version utilisable) selon les utilisateurs
+    - [ ] Générer une nouvelle version à chaque modification validée (anti-régression)
+    - [ ] Gérer l'obsolescence, la notification de dépréciation, et la suppression conditionnelle
 
-- [ ] **Export/Import & OpenAPI**
+5. [ ] **Export/Import & OpenAPI**
 
-  - [ ] Permettre l'export/import de modèles (format : JSON)
-  - [ ] Générer dynamiquement OpenAPI et routes à partir du manifest validé
-  - [ ] Prévoir une interface de mapping manifest ↔ OpenAPI personnalisable
+    - [ ] Permettre l'export/import de modèles (format : JSON)
+    - [ ] Générer dynamiquement OpenAPI et routes à partir du manifest validé
+    - [ ] Prévoir une interface de mapping manifest ↔ OpenAPI personnalisable
 
-- [ ] **Réponses API**
-  - [ ] Standardiser les réponses : statut HTTP, titre, message, data, version, deprecated, expires_at
+6. [ ] **Réponses API**
+    - [ ] Standardiser les réponses : statut HTTP, titre, message, data, version, deprecated, expires_at
 
 ---
 
