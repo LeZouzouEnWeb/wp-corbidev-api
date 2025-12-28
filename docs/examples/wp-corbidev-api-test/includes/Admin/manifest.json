@@ -1,7 +1,0 @@
-{
-  "slug": "test",
-  "title": "API Test",
-  "description": "API de test migrée depuis le plugin principal.",
-  "version": "1.0.0",
-  "admin_class": "Admin\\Page\\TestPage"
-}
