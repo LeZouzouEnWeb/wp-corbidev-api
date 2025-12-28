@@ -117,6 +117,36 @@ class ManifestRepository
         return $models;
     }
 
+    public static function get_model_with_latest_version(int $model_id): ?array
+    {
+        global $wpdb;
+        self::ensure_tables();
+
+        $models_table   = self::get_models_table();
+        $versions_table = self::get_versions_table();
+
+        $model = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM {$models_table} WHERE id = %d", $model_id),
+            ARRAY_A
+        );
+
+        if (!$model) {
+            return null;
+        }
+
+        $version = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$versions_table} WHERE model_id = %d ORDER BY created_at DESC LIMIT 1",
+                $model_id
+            ),
+            ARRAY_A
+        );
+
+        $model['version_info'] = $version ?: null;
+
+        return $model;
+    }
+
     public static function slug_exists(string $slug): bool
     {
         global $wpdb;
