@@ -1,3 +1,0 @@
-<?php
-// Fichier Controller.php migré depuis le plugin principal pour l'API Test
-// ...contenu à compléter selon l'original...

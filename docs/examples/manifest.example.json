@@ -1,6 +1,0 @@
-{
-  "slug": "cv",
-  "display_name": "CV",
-  "modules": ["identity", "experience"],
-  "api_contract": "openapi.example.json"
-}
